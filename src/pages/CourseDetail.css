@@ -1,16 +1,17 @@
+/* Global Container */
 .app-container {
   display: flex;
   min-height: 100vh;
   background-color: #f8f9fa;
 }
 
-/* Enhanced Sidebar Styles */
+/* Sidebar Styling */
 .sidebar {
   width: 256px;
   background-color: #fff;
   border-right: 1px solid #e0e0e0;
   transition: width 0.3s ease;
-  padding: 8px;
+  padding: 16px;
   height: 100vh;
   position: sticky;
   top: 0;
@@ -21,14 +22,14 @@
 }
 
 .sidebar-header {
-  padding: 12px;
+  padding: 16px 0;
   border-bottom: 1px solid #e0e0e0;
 }
 
 .menu-toggle {
   background: none;
   border: none;
-  font-size: 24px;
+  font-size: 28px;
   cursor: pointer;
   color: #5f6368;
   width: 40px;
@@ -47,7 +48,7 @@
   display: flex;
   align-items: center;
   padding: 12px 24px;
-  margin: 4px 0;
+  margin: 8px 0;
   border-radius: 0 25px 25px 0;
   cursor: pointer;
   color: #5f6368;
@@ -60,7 +61,7 @@
 
 .nav-item.active {
   background-color: #e6f4ea;
-  color: #1967d2;
+  color: #0097a7;
 }
 
 .nav-item i {
@@ -80,7 +81,7 @@
   display: none;
 }
 
-/* Add tooltip for closed sidebar */
+/* Tooltip for closed sidebar */
 .sidebar.closed .nav-item {
   padding: 12px;
   justify-content: center;
@@ -102,7 +103,7 @@
   z-index: 1000;
 }
 
-/* Enhanced Header Styles */
+/* Header Styles */
 .course-header {
   background-color: #fff;
   padding: 16px 24px;
@@ -128,8 +129,8 @@
 
 .course-title h1 {
   margin: 0;
-  font-size: 24px;
-  font-weight: 500;
+  font-size: 26px;
+  font-weight: 600;
   color: #202124;
 }
 
@@ -141,8 +142,8 @@
 
 .upload-lecture-btn {
   background-color: transparent;
-  border: 1px solid #1a73e8;
-  color: #1a73e8;
+  border: 1px solid #0097a7;
+  color: #0097a7;
   padding: 8px 16px;
   border-radius: 8px;
   display: flex;
@@ -157,7 +158,7 @@
   background-color: rgba(26, 115, 232, 0.04);
 }
 
-/* Enhanced Lectures Grid */
+/* Lectures Grid */
 .lectures-container {
   padding: 24px;
 }
@@ -241,6 +242,7 @@
 
 .lecture-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   margin-top: 16px;
 }
@@ -259,12 +261,12 @@
 }
 
 .summarize-btn {
-  background-color: #1a73e8;
+  background-color: #0097a7;
   color: white;
 }
 
 .summarize-btn:hover {
-  background-color: #1557b0;
+  background-color: #0097a7;
   transform: translateY(-1px);
 }
 
@@ -275,6 +277,16 @@
 
 .quiz-btn:hover {
   background-color: #d33828;
+  transform: translateY(-1px);
+}
+
+.flashcard-btn {
+  background-color: #9b59b6;
+  color: white;
+}
+
+.flashcard-btn:hover {
+  background-color: #8e44ad;
   transform: translateY(-1px);
 }
 
@@ -324,4 +336,4 @@
   .lectures-grid {
     grid-template-columns: 1fr;
   }
-} 
+}

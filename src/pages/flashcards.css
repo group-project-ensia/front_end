@@ -1,0 +1,107 @@
+/* Container Styling */
+.flashcards-container {
+    max-width: 700px;
+    margin: 2rem auto;
+    padding: 2rem 1rem;
+    text-align: center;
+    background-color: transparent; /* Light background for the page */
+    border-radius: 12px;
+  }
+  
+  /* Title Styling */
+  .flashcards-title {
+    font-size: 2rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: #333;
+  }
+  
+  /* Flashcard Styling */
+  .flashcard {
+    perspective: 1000px;
+    margin-bottom: 1rem;
+    cursor: pointer;
+    transition: transform 0.3s ease-in-out;
+  }
+  
+  /* Flashcard Inner Flip Effect */
+  .flashcard-inner {
+    position: relative;
+    width: 100%;
+    height: 300px; /* Fixed height for consistency */
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
+  }
+  
+  /* Flip Effect */
+  .flashcard.flipped .flashcard-inner {
+    transform: rotateY(180deg);
+  }
+  
+  /* Front & Back of Flashcards */
+  .flashcard-front,
+  .flashcard-back {
+    position: absolute;
+    width: 100%;
+    backface-visibility: hidden;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Front Card Styling */
+  .flashcard-front {
+    background-color: #e0f7fa; /* Light Blue */
+    padding: 2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.25rem;
+    font-weight: 500;
+    color: #333;
+  }
+  
+  /* Back Card Styling */
+  .flashcard-back {
+    transform: rotateY(180deg);
+    background-color: #0096a74e; /* Lighter Blue */
+    padding: 2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.125rem;
+    font-weight: 500;
+    color: #333;
+  }
+  
+  /* Controls and Index */
+  .flashcard-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1.5rem;
+  }
+  
+  /* Index Styling */
+  .flashcard-index {
+    font-size: 1rem;
+    color: #6b7280; /* Tailwind gray-500 */
+  }
+  
+  /* Next Button Styling */
+  .flashcard-controls button {
+    padding: 0.75rem 1.5rem;
+    background-color: #0097a7;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1rem;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+  }
+  
+  .flashcard-controls button:hover {
+    background-color: #0097a7;
+    transform: translateY(-2px);
+  }
+  

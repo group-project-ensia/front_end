@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom'; // ✅ import useNavigate
 import './CourseDetail.css';
+
 
 interface Lecture {
   id: string;
@@ -15,6 +16,7 @@ interface Lecture {
 const CourseDetail: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const { courseId } = useParams();
+  const navigate = useNavigate(); // ✅ init navigation
 
   const lectures: Lecture[] = [
     {
@@ -23,7 +25,7 @@ const CourseDetail: React.FC = () => {
       date: '2024-03-01',
       duration: '1:15:00',
       thumbnailUrl: 'https://source.unsplash.com/random/400x225/?lecture',
-      notes: 'Course overview and syllabus discussion'
+      notes: 'Course overview and syllabus discussion',
     },
     // Add more sample lectures
   ];
@@ -39,18 +41,23 @@ const CourseDetail: React.FC = () => {
         </div>
         <nav className="sidebar-nav">
           <ul>
-            <li className="nav-item active" data-tooltip="Classes">
-              <i className="fas fa-home"></i>
-              <span className="nav-label">Classes</span>
+          <li
+              data-tooltip="Classes"
+              onClick={() => navigate('/classroom')} // Use navigate here
+              style={{ cursor: 'pointer' }}
+            >
+              <i className="fas fa-graduation-cap"></i>
+              <span className="nav-text">Classes</span>
             </li>
             <li className="nav-item" data-tooltip="Calendar">
               <i className="fas fa-calendar"></i>
               <span className="nav-label">Calendar</span>
             </li>
-            <li className="nav-item" data-tooltip="To-do">
-              <i className="fas fa-tasks"></i>
-              <span className="nav-label">To-do</span>
-            </li>
+            <li data-tooltip="To-do" onClick={() => navigate('/todo')} style={{ cursor: 'pointer' }}>
+  <i className="fas fa-tasks"></i>
+  <span className="nav-text">To-do</span>
+</li>
+
             <li className="nav-item" data-tooltip="Archived classes">
               <i className="fas fa-archive"></i>
               <span className="nav-label">Archived classes</span>
@@ -85,7 +92,7 @@ const CourseDetail: React.FC = () => {
 
         <main className="lectures-container">
           <div className="lectures-grid">
-            {lectures.map(lecture => (
+            {lectures.map((lecture) => (
               <div key={lecture.id} className="lecture-card">
                 <div className="lecture-thumbnail">
                   <div className="thumbnail-placeholder">
@@ -110,9 +117,19 @@ const CourseDetail: React.FC = () => {
                       <i className="fas fa-book-reader"></i>
                       <span>Summarize</span>
                     </button>
-                    <button className="action-btn quiz-btn">
+                    <button
+                      className="action-btn quiz-btn"
+                      onClick={() => navigate('/quizzes')} // ✅ navigate to quizzes
+                    >
                       <i className="fas fa-question-circle"></i>
                       <span>Quiz</span>
+                    </button>
+                    <button
+                      className="action-btn flashcard-btn"
+                      onClick={() => navigate('/flashcards')} // ✅ navigate to flashcards
+                    >
+                      <i className="fas fa-clone"></i>
+                      <span>Flashcards</span>
                     </button>
                     <button className="action-btn more-btn" title="More options">
                       <i className="fas fa-ellipsis-v"></i>
@@ -128,4 +145,4 @@ const CourseDetail: React.FC = () => {
   );
 };
 
-export default CourseDetail; 
+export default CourseDetail;

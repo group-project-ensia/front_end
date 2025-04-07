@@ -74,10 +74,12 @@ const Classroom: React.FC = () => {
               <i className="fas fa-calendar"></i>
               <span className="nav-text">Calendar</span>
             </li>
-            <li data-tooltip="To-do">
-              <i className="fas fa-tasks"></i>
-              <span className="nav-text">To-do</span>
-            </li>
+            <li data-tooltip="To-do" onClick={() => navigate('/todo')} style={{ cursor: 'pointer' }}>
+  <i className="fas fa-tasks"></i>
+  <span className="nav-text">To-do</span>
+</li>
+
+
             <li className="archived" data-tooltip="Archived classes">
               <i className="fas fa-archive"></i>
               <span className="nav-text">Archived classes</span>
