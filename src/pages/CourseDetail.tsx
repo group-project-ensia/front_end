@@ -257,6 +257,13 @@ const CourseDetail: React.FC = () => {
                       <i className="fas fa-clone"></i>
                       Flashcards
                     </button>
+                    <button
+                      className="action-btn chat-btn improved"
+                      onClick={() => navigate('/chat')}
+                    >
+                      <i className="fas fa-comments"></i>
+                      Chat
+                    </button>
                   </div>
                 </div>
               </div>

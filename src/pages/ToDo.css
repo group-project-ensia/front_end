@@ -220,6 +220,7 @@
     box-shadow: var(--shadow-sm);
     transition: all var(--transition-speed) ease;
     cursor: pointer;
+    animation: fadeIn 0.7s;
   }
   
   .class-card:hover {
@@ -281,6 +282,119 @@
   .view-details-btn:hover {
     background-color: var(--primary-color);
     color: white;
+  }
+  
+  /* Task Card Improvements */
+  .class-card.completed {
+    background: #e0f7fa;
+    opacity: 0.7;
+    border: 2px solid #1e8e3e;
+    transition: background 0.3s, opacity 0.3s, border 0.3s;
+  }
+  
+  .class-card.overdue {
+    background: #fff0f0;
+    border: 2px solid #d93025;
+    animation: overdue-pulse 1s infinite alternate;
+  }
+  
+  .class-card.due-today {
+    background: #fffbe7;
+    border: 2px solid #fbbf24;
+  }
+  
+  @keyframes overdue-pulse {
+    from { box-shadow: 0 0 0 0 #d9302530; }
+    to { box-shadow: 0 0 12px 4px #d9302530; }
+  }
+  
+  .task-header-row {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .card-content .due-date {
+    font-weight: bold;
+    color: #dc2626;
+  }
+  
+  .class-card.due-today .due-date {
+    color: #f59e42;
+  }
+  
+  .class-card.completed .due-date {
+    color: #1e8e3e;
+  }
+  
+  .edit-task-btn, .delete-task-btn {
+    background: none;
+    border: none;
+    font-size: 1.1rem;
+    margin: 0 6px;
+    color: #6366f1;
+    cursor: pointer;
+    border-radius: 50%;
+    padding: 0.4rem 0.55rem;
+    transition: background 0.18s;
+  }
+  
+  .edit-task-btn:hover {
+    background: #e0e7ff;
+    color: #4338ca;
+  }
+  
+  .delete-task-btn:hover {
+    background: #ffe4e6;
+    color: #dc2626;
+  }
+  
+  /* Animate card entry/exit */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  
+  /* Empty State */
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2.5rem 1rem;
+    text-align: center;
+    color: #5f6368;
+    animation: fadeIn 1s;
+  }
+  
+  .empty-state img {
+    width: 180px;
+    margin-bottom: 1.3rem;
+  }
+  
+  .empty-state h3 {
+    color: #22223b;
+    font-size: 1.3rem;
+    margin-bottom: 0.2rem;
+  }
+  
+  .empty-state p {
+    font-size: 1rem;
+    color: #5f6368;
+  }
+  
+  /* Responsive tweaks for improved UI */
+  @media (max-width: 600px) {
+    .main-content, .classroom-header, .class-cards-container {
+      padding: 0.5rem !important;
+    }
+    .class-card {
+      padding: 0.7rem;
+    }
+    .card-content h3 {
+      font-size: 1rem;
+    }
   }
   
   /* Loading Overlay */
@@ -353,4 +467,3 @@
     from { transform: translateY(20px); opacity: 0; }
     to { transform: translateY(0); opacity: 1; }
   }
-  
