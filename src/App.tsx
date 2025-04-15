@@ -9,6 +9,7 @@ import CourseDetail from './pages/CourseDetail';
 import Flashcards from './pages/flashcards'; // adjust path if needed
 import Quizzes from './pages/Quizzes';
 import Todo from './pages/ToDo';
+import Calendar from './pages/Calendar';
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -40,8 +41,7 @@ function App() {
           <Route path="/flashcards" element={<Flashcards />} />
           <Route path="/quizzes" element={<Quizzes />} />
           <Route path="/todo" element={<Todo />} />
-
-          
+          <Route path="/calendar" element={<Calendar />} />
         </Routes>
       </div>
     </Router>

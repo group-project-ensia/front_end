@@ -1,0 +1,106 @@
+.calendar-page-container {
+  max-width: 900px;
+  margin: 2.5rem auto 0 auto;
+  background: #fff;
+  border-radius: 1.2rem;
+  box-shadow: 0 8px 32px 0 rgba(79,70,229,0.09);
+  padding: 2.5rem 2rem 2.5rem 2rem;
+}
+
+.calendar-title {
+  font-size: 2.3rem;
+  font-weight: 800;
+  color: #4f46e5;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.fc {
+  background: #f8fafc;
+  border-radius: 1rem;
+  padding: 1.5rem 1rem 1.5rem 1rem;
+  box-shadow: 0 4px 18px 0 rgba(79,70,229,0.06);
+}
+
+.fc-daygrid-event {
+  background: #6366f1 !important;
+  color: #fff !important;
+  border: none !important;
+  border-radius: 0.5rem !important;
+  font-weight: 600;
+  font-size: 1rem;
+  padding: 0.2rem 0.6rem;
+  margin: 2px 0;
+}
+
+.fc-toolbar-title {
+  color: #22223b;
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+/* Modal styles (reuse from other modals) */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(34, 34, 59, 0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+.modal-content {
+  background: #fff;
+  border-radius: 1.2rem;
+  box-shadow: 0 8px 32px 0 rgba(79,70,229,0.13);
+  padding: 2.2rem 2rem 1.7rem 2rem;
+  min-width: 320px;
+  max-width: 95vw;
+}
+.modal-label {
+  display: block;
+  font-weight: 600;
+  color: #4f46e5;
+  margin-bottom: 1rem;
+}
+.modal-label input {
+  display: block;
+  width: 100%;
+  padding: 0.55rem 0.8rem;
+  border-radius: 0.6rem;
+  border: 1.5px solid #e0e7ff;
+  margin-top: 0.3rem;
+  font-size: 1rem;
+  color: #22223b;
+}
+.modal-actions {
+  display: flex;
+  gap: 0.7rem;
+  justify-content: flex-end;
+  margin-top: 1.2rem;
+}
+.modal-cancel-btn,
+.modal-upload-btn.consistent {
+  background: #6366f1;
+  color: #fff;
+  border: none;
+  border-radius: 0.6rem;
+  padding: 0.5rem 1.2rem;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.18s;
+}
+.modal-cancel-btn {
+  background: #e0e7ff;
+  color: #4f46e5;
+}
+.modal-cancel-btn:hover {
+  background: #c7d2fe;
+}
+.modal-upload-btn.consistent:hover {
+  background: #4338ca;
+}
