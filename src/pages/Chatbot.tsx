@@ -112,7 +112,8 @@ const Chatbot: React.FC = () => {
               onChange={e => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
             />
-            <button className="chat-send-button" onClick={handleSend}>
+            <button className="chat-send-button vibrant
+            " onClick={handleSend}>
               Send
             </button>
           </div>
