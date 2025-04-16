@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import './ToDo.css'; // Reuse the same CSS for consistent styling
+import './ToDo.css'; 
 import { v4 as uuidv4 } from 'uuid';
-import { useNavigate } from 'react-router-dom'; // Make sure to import useNavigate
+import { useNavigate } from 'react-router-dom'; 
 
 interface TodoItem {
   id: string;
@@ -11,7 +11,7 @@ interface TodoItem {
 }
 
 const Todo: React.FC = () => {
-  const navigate = useNavigate(); // Declare navigate here
+  const navigate = useNavigate(); 
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
