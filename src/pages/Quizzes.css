@@ -60,13 +60,13 @@
   }
   
   .quiz-option:hover {
-    background-color: #e2e6ff;
+    background-color: #52e2fb33;
     transform: translateY(-2px);
   }
   
   .quiz-option.selected {
-    background-color: #cfe9ff;
-    border-color: #90caf9;
+    background-color: #4e46e541;
+    border-color: #4e46e5;
   }
   
   /* Next and Restart Buttons */
@@ -86,7 +86,7 @@
   
   .quiz-next:hover,
   .quiz-restart:hover {
-    background-color: #0097a7;
+    background-color: #52e2fb;
     transform: translateY(-2px);
   }
   
@@ -94,7 +94,7 @@
   .quiz-progress-bar {
     height: 10px;
     width: 100%;
-    background-color: #e0e0e0;
+    background-color: #4e46e51a;
     border-radius: 10px;
     margin-bottom: 1rem;
   }
@@ -102,7 +102,7 @@
   .quiz-progress {
     height: 100%;
     width: 0;
-    background-color: #4caf50;
+    background-color: #52e2fb;
     border-radius: 10px;
     transition: width 0.3s ease;
   }

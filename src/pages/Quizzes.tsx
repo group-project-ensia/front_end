@@ -94,7 +94,7 @@ const Quizzes: React.FC = () => {
               </button>
             ))}
           </div>
-          <button className="quiz-next" onClick={handleNext} disabled={!selectedOption}>
+          <button className="quiz-next vibrant" onClick={handleNext} disabled={!selectedOption}>
             {currentIndex === sampleQuestions.length - 1 ? 'Submit' : 'Next'}
           </button>
         </div>
@@ -116,7 +116,7 @@ const Quizzes: React.FC = () => {
             ))}
           </div>
 
-          <button className="quiz-restart" onClick={restartQuiz}>Retake Quiz</button>
+          <button className="quiz-restart vibrant" onClick={restartQuiz}>Retake Quiz</button>
         </div>
       )}
     </div>
