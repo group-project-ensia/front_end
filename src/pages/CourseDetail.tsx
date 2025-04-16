@@ -289,7 +289,7 @@ const CourseDetail: React.FC = () => {
                 <button type="button" className="modal-cancel-btn" onClick={() => setEditLectureModalOpen(false)}>
                   Cancel
                 </button>
-                <button type="submit" className="modal-upload-btn consistent">
+                <button type="submit" className="modal-upload-btn consistent improved">
                   Save
                 </button>
               </div>
