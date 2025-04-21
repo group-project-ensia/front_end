@@ -5,7 +5,11 @@
   z-index: 1000;
   margin: 0 auto;
   padding: 0.5rem;
+  background: rgba(20, 24, 40, 0.85);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 2px 16px rgba(0,0,0,0.12);
 }
+
 
 .navbar-container {
   max-width: 1400px;
@@ -20,7 +24,9 @@
   font-size: 1.8rem;
   font-weight: 700;
   letter-spacing: 1px;
+  color: #fff !important;
 }
+
 
 .search-bar {
   position: relative;
@@ -30,14 +36,15 @@
 
 .search-bar input {
   padding: 0.8rem 2.5rem 0.8rem 1rem;
-  border: 1px solid var(--glass-border);
+  border: 1px solid #3e4a6d;
   border-radius: 30px;
-  background: rgba(255, 255, 255, 0.03);
-  color: var(--text-primary);
+  background: rgba(40, 48, 80, 0.22);
+  color: #fff;
   width: 300px;
   font-size: 0.9rem;
   transition: all 0.3s ease;
 }
+
 
 .search-bar input:focus {
   outline: none;
@@ -58,12 +65,14 @@
 }
 
 .nav-link {
-  color: var(--text-primary);
+  color: #fff !important;
   text-decoration: none;
   font-weight: 500;
   position: relative;
   padding: 0.5rem 0;
+  transition: color 0.2s;
 }
+
 
 .nav-link::after {
   content: '';
@@ -72,9 +81,10 @@
   left: 0;
   width: 0;
   height: 2px;
-  background: var(--primary);
+  background: #00F7FF;
   transition: width 0.3s ease;
 }
+
 
 .nav-link:hover::after {
   width: 100%;
@@ -91,15 +101,18 @@
 
 .login-btn {
   background: transparent;
-  border: 1px solid var(--primary);
-  color: var(--primary);
+  border: 1px solid #00F7FF;
+  color: #fff;
 }
 
+
 .signup-btn {
-  background: linear-gradient(45deg, var(--primary), var(--secondary));
-  color: var(--text-primary);
+  background: linear-gradient(90deg, #00F7FF 0%, #6C63FF 100%);
+  color: #fff;
   margin-left: 1rem;
+  border: none;
 }
+
 
 .login-btn:hover {
   background: rgba(0, 247, 255, 0.1);

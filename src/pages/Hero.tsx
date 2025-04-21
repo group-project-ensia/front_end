@@ -1,80 +1,94 @@
-import React, { useEffect } from 'react';
-import { motion } from 'framer-motion';
-import gsap from 'gsap';
+import React, { useEffect, useRef } from 'react';
 import './Hero.css';
+
+const NUM_STARS = 80;
+const STAR_SPEED = 0.3;
 
 interface HeroProps {
   onGetStarted: () => void;
 }
 
 const Hero: React.FC<HeroProps> = ({ onGetStarted }) => {
+  const canvasRef = useRef(null);
+
   useEffect(() => {
-    const tl = gsap.timeline();
-    tl.from('.hero-title', {
-      y: 100,
-      opacity: 0,
-      duration: 1,
-      ease: 'power4.out',
-    })
-    .from('.hero-subtitle', {
-      y: 50,
-      opacity: 0,
-      duration: 1,
-      ease: 'power4.out',
-    }, '-=0.5')
-    .from('.hero-buttons', {
-      y: 50,
-      opacity: 0,
-      duration: 1,
-      ease: 'power4.out',
-    }, '-=0.5');
+    const canvas = canvasRef.current as HTMLCanvasElement | null;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    let width = window.innerWidth;
+    let height = window.innerHeight;
+    canvas.width = width;
+    canvas.height = height;
+
+    function randomStar() {
+      // 3D starfield effect
+      return {
+        x: Math.random() * width - width / 2,
+        y: Math.random() * height - height / 2,
+        z: Math.random() * width,
+        o: 0.7 + Math.random() * 0.3,
+        r: 0.8 + Math.random() * 1.6
+      };
+    }
+    let stars = Array.from({ length: NUM_STARS }, randomStar);
+
+    function draw() {
+      if (!ctx) return;
+      ctx.clearRect(0, 0, width, height);
+      for (let star of stars) {
+        // Perspective
+        let k = 128.0 / star.z;
+        let sx = star.x * k + width / 2;
+        let sy = star.y * k + height / 2;
+        let r = star.r * k;
+        ctx.beginPath();
+        ctx.arc(sx, sy, r, 0, 2 * Math.PI);
+        ctx.fillStyle = `rgba(255,255,255,${star.o})`;
+        ctx.shadowColor = '#fff';
+        ctx.shadowBlur = 8;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      }
+    }
+
+    function animate() {
+      for (let star of stars) {
+        star.z -= STAR_SPEED;
+        if (star.z < 1) {
+          Object.assign(star, randomStar());
+          star.z = width;
+        }
+      }
+      draw();
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+
+    function handleResize() {
+      if (!canvas) return;
+      width = window.innerWidth;
+      height = window.innerHeight;
+      canvas.width = width;
+      canvas.height = height;
+    }
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   return (
-    <section className="hero">
-      <div className="hero-container">
-        <motion.div 
-          className="hero-content"
-          initial={{ opacity: 0, x: -100 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 1, delay: 0.5 }}
-        >
-          <h1 className="hero-title gradient-text">
-            Transform Your Learning
-            <br />
-            with AI-Powered Study Tools
-          </h1>
-          <p className="hero-subtitle">
-            Create, share, and master your studies with our intelligent flashcards
-            and personalized AI study assistant
-          </p>
-          <div className="hero-buttons">
-            <motion.button
-              className="primary-btn"
-              whileHover={{
-                scale: 1.05,
-                boxShadow: '0 0 25px var(--primary)'
-              }}
-              whileTap={{ scale: 0.95 }}
-              onClick={onGetStarted}
-            >
-              Get Started
-            </motion.button>
-            <motion.button
-              className="secondary-btn"
-              whileHover={{
-                scale: 1.05,
-                boxShadow: '0 0 25px var(--secondary)'
-              }}
-              whileTap={{ scale: 0.95 }}
-            >
-              Explore Study Sets
-            </motion.button>
-          </div>
-        </motion.div>
-        
+    <section className="hero dark-hero-bg">
+      <canvas ref={canvasRef} className="hero-stars-canvas"/>
+      <div className="hero-content dark-hero-content">
+        <h1 className="hero-title dark-hero-title">
+          Unlock Your Study Potential with AI
+        </h1>
+        <p className="hero-subtitle dark-hero-subtitle">
+          Our platform uses advanced AI to help students maximize their study efficiency, making learning smarter and more fun.
+        </p>
+        <button className="primary-btn dark-hero-btn" onClick={onGetStarted}>Get Started</button>
       </div>
-      <div className="hero-gradient" />
     </section>
   );
 };
