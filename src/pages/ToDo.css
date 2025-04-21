@@ -1,6 +1,5 @@
-/* Base styles */
 :root {
-    --primary-color: #0097a7;
+    --primary-color: #4f46e5;
     --secondary-color: #5f6368;
     --background-color: #f8f9fa;
     --surface-color: #ffffff;
@@ -350,13 +349,13 @@
     color: #dc2626;
   }
   
-  /* Animate card entry/exit */
+  
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(20px) scale(0.98); }
     to { opacity: 1; transform: translateY(0) scale(1); }
   }
   
-  /* Empty State */
+  
   .empty-state {
     display: flex;
     flex-direction: column;
@@ -384,7 +383,7 @@
     color: #5f6368;
   }
   
-  /* Responsive tweaks for improved UI */
+  
   @media (max-width: 600px) {
     .main-content, .classroom-header, .class-cards-container {
       padding: 0.5rem !important;
@@ -397,7 +396,7 @@
     }
   }
   
-  /* Loading Overlay */
+  
   .loading-overlay {
     position: fixed;
     top: 0;

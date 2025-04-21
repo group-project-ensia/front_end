@@ -265,10 +265,10 @@
 }
 
 .action-btn.improved {
-  background: linear-gradient(90deg, #6366f1 60%, #06b6d4 100%);
+  background: linear-gradient(90deg, #4f46e5 50%, #06b6d4 100%);
   color: #fff;
   border: none;
-  border-radius: 1.1rem;
+  border-radius: 0.5rem;
   flex: 1 1 33%;
   padding: 10px 0;
   font-weight: 600;
@@ -283,7 +283,7 @@
 }
 
 .action-btn.improved:hover {
-  background: linear-gradient(90deg, #06b6d4 60%, #6366f1 100%);
+  background: linear-gradient(90deg, #06b6d4 50%, #4f46e5 100%);
   transform: translateY(-2px) scale(1.04);
 }
 

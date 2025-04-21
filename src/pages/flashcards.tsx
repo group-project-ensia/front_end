@@ -39,32 +39,27 @@ const Flashcards: React.FC = () => {
 
   return (
     <div className="flashcards-container">
-      <h2 className="flashcards-title">Flashcards</h2>
+      <h2 className="flashcards-title">💡Flashcards</h2>
 
       <div className={`flashcard ${flipped ? 'flipped' : ''}`} onClick={handleFlip}>
         <div className="flashcard-inner">
           <div className="flashcard-front">
-            <div className="flashcard-content">
-              <p>{currentCard.question}</p>
-            </div>
+            <p>{currentCard.question}</p>
           </div>
           <div className="flashcard-back">
-            <div className="flashcard-content">
-              <p>{currentCard.answer}</p>
-            </div>
+            <p>{currentCard.answer}</p>
           </div>
         </div>
       </div>
 
       <div className="flashcard-controls">
-        <div className="flashcard-index">
-          {currentIndex + 1} / {flashcardsData.length}
-        </div>
-        <button onClick={handleNext}>Next</button>
+        <span className="flashcard-index">
+          Card {currentIndex + 1} of {flashcardsData.length}
+        </span>
+        <button className="next-button vibrant" onClick={handleNext}>Next ➡️</button>
       </div>
     </div>
   );
 };
 
 export default Flashcards;
-

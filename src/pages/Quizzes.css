@@ -1,15 +1,14 @@
-/* Background and Container Styling */
 .quiz-container {
     display: flex;
     justify-content: center;
     align-items: center;
     flex-direction: column;
-    min-height: 100vh; /* Full viewport height */
+    min-height: 100vh; 
     margin: 0;
     padding: 1.5rem;
     border-radius: 16px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    background-color: #fff; /* White background for quiz container */
+    background-color: #fff; 
     color: #333;
   }
   
@@ -27,15 +26,16 @@
     display: flex;
     flex-direction: column;
     gap: 1rem;
-    background-color: #fff; /* White background for the card */
+    background-color: #fff; 
     border-radius: 12px;
     padding: 1.5rem;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
     color: #333;
-    max-width: 100%; /* Ensures it is responsive */
     width: 100%;
+    max-width: 600px; 
     box-sizing: border-box;
   }
+  
   
   .quiz-question {
     font-size: 1.25rem;
@@ -61,13 +61,13 @@
   }
   
   .quiz-option:hover {
-    background-color: #e2e6ff;
+    background-color: #52e2fb33;
     transform: translateY(-2px);
   }
   
   .quiz-option.selected {
-    background-color: #cfe9ff;
-    border-color: #90caf9;
+    background-color: #4e46e541;
+    border-color: #4e46e5;
   }
   
   /* Next and Restart Buttons */
@@ -87,7 +87,7 @@
   
   .quiz-next:hover,
   .quiz-restart:hover {
-    background-color: #0097a7;
+    background-color: #52e2fb;
     transform: translateY(-2px);
   }
   
@@ -95,7 +95,7 @@
   .quiz-progress-bar {
     height: 10px;
     width: 100%;
-    background-color: #e0e0e0;
+    background-color: #4e46e51a;
     border-radius: 10px;
     margin-bottom: 1rem;
   }
@@ -103,7 +103,7 @@
   .quiz-progress {
     height: 100%;
     width: 0;
-    background-color: #4caf50;
+    background-color: #52e2fb;
     border-radius: 10px;
     transition: width 0.3s ease;
   }
@@ -152,5 +152,12 @@
     font-weight: 500;
     line-height: 1.5;
     color: #333;
+  }
+  
+
+  .quiz-bar-wrapper {
+    width: 100%;
+    max-width: 600px; 
+    margin-bottom: 1rem;
   }
   

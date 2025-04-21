@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom'; // import useNavigate
+import { useParams, useNavigate } from 'react-router-dom'; 
 import './CourseDetail.css';
 
 interface Lecture {
@@ -131,7 +131,7 @@ const CourseDetail: React.FC = () => {
           <ul>
           <li
               data-tooltip="Classes"
-              onClick={() => navigate('/classroom')} // Use navigate here
+              onClick={() => navigate('/classroom')} 
               style={{ cursor: 'pointer' }}
             >
               <i className="fas fa-graduation-cap"></i>
@@ -258,12 +258,13 @@ const CourseDetail: React.FC = () => {
                       Flashcards
                     </button>
                     <button
-                      className="action-btn chat-btn improved"
-                      onClick={() => navigate('/chat')}
-                    >
-                      <i className="fas fa-comments"></i>
-                      Chat
-                    </button>
+  className="action-btn chat-btn improved"
+  onClick={() => navigate('/chatbot')}
+>
+  <i className="fas fa-comments"></i>
+  Chat
+</button>
+
                   </div>
                 </div>
               </div>
@@ -289,7 +290,7 @@ const CourseDetail: React.FC = () => {
                 <button type="button" className="modal-cancel-btn" onClick={() => setEditLectureModalOpen(false)}>
                   Cancel
                 </button>
-                <button type="submit" className="modal-upload-btn consistent">
+                <button type="submit" className="modal-upload-btn consistent improved">
                   Save
                 </button>
               </div>

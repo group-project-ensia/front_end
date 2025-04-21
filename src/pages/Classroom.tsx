@@ -302,7 +302,7 @@ const Classroom: React.FC = () => {
               <input value={newTeacher} onChange={e => setNewTeacher(e.target.value)} required placeholder="Enter teacher name" />
               <label>Picture (optional)</label>
               <input value={newImageUrl} onChange={e => setNewImageUrl(e.target.value)} placeholder="Paste image URL (optional)" />
-              <button className="vibrant" type="submit">Create</button>
+              <button className="create-class-btn vibrant" type="submit">Create</button>
             </form>
           </div>
         </div>

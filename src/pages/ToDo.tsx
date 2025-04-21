@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import './ToDo.css'; // Reuse the same CSS for consistent styling
+import './ToDo.css'; 
 import { v4 as uuidv4 } from 'uuid';
-import { useNavigate } from 'react-router-dom'; // Make sure to import useNavigate
+import { useNavigate } from 'react-router-dom'; 
 
 interface TodoItem {
   id: string;
@@ -11,7 +11,7 @@ interface TodoItem {
 }
 
 const Todo: React.FC = () => {
-  const navigate = useNavigate(); // Declare navigate here
+  const navigate = useNavigate(); 
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -184,7 +184,7 @@ const Todo: React.FC = () => {
             </div>
           </div>
           <div className="header-right">
-            <button className="create-class-btn" onClick={openAddTaskModal}>
+            <button className="create-class-btn vibrant" onClick={openAddTaskModal}>
               <i className="fas fa-plus"></i>
               Add Task
             </button>
@@ -252,7 +252,7 @@ const Todo: React.FC = () => {
               </label>
               <div className="modal-actions">
                 <button type="button" className="modal-cancel-btn" onClick={() => setShowTaskModal(false)}>Cancel</button>
-                <button type="submit" className="modal-upload-btn consistent">{modalEditId ? 'Save' : 'Add'}</button>
+                <button type="submit" className="modal-upload-btn consistent vibrant">{modalEditId ? 'Save' : 'Add'}</button>
               </div>
             </form>
           </div>
@@ -265,8 +265,8 @@ const Todo: React.FC = () => {
             <h2>Delete Task</h2>
             <p>Are you sure you want to delete this task?</p>
             <div className="modal-actions">
-              <button type="button" className="modal-cancel-btn" onClick={() => setDeleteId(null)}>Cancel</button>
-              <button type="button" className="modal-upload-btn consistent" onClick={handleDeleteTask}>Delete</button>
+              <button type="button" className="modal-cancel-btn " onClick={() => setDeleteId(null)}>Cancel</button>
+              <button type="button" className="modal-upload-btn consistent vibrant" onClick={handleDeleteTask}>Delete</button>
             </div>
           </div>
         </div>

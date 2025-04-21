@@ -10,8 +10,9 @@ import Flashcards from './pages/flashcards'; // adjust path if needed
 import Quizzes from './pages/Quizzes';
 import Todo from './pages/ToDo';
 import Calendar from './pages/Calendar';
+import Chatbot from './pages/Chatbot'; 
 
-const HomePage = () => {
+function HomePage() {
   const navigate = useNavigate();
 
   const handleGetStarted = () => {
@@ -28,7 +29,7 @@ const HomePage = () => {
       </main>
     </>
   );
-};
+}
 
 function App() {
   return (
@@ -42,6 +43,7 @@ function App() {
           <Route path="/quizzes" element={<Quizzes />} />
           <Route path="/todo" element={<Todo />} />
           <Route path="/calendar" element={<Calendar />} />
+          <Route path="/chatbot" element={<Chatbot />} />
         </Routes>
       </div>
     </Router>

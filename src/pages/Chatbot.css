@@ -1,0 +1,139 @@
+.chat-main-content {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    font-family: 'Segoe UI', sans-serif;
+  }
+  
+  .chat-header {
+    background-color: #4f46e5;
+    color: #52e2fb;
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1.25rem;
+  }
+  
+  .chat-content {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+  
+  /* Chat container */
+  .chat-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: #fafafa;
+    position: relative;
+  }
+  
+  /* Messages */
+  .chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .chat-message {
+    display: flex;
+    max-width: 70%;
+  }
+  
+  .chat-user-message {
+    align-self: flex-end;
+    flex-direction: row-reverse;
+   
+  }
+  
+  .chat-bot-message {
+    align-self: flex-start;
+    
+  }
+  
+  .chat-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #ccc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    margin: 0 0.5rem;
+  }
+  
+  .chat-text-block {
+    background-color: #4e46e52d  ;
+    padding: 0.6rem 0.9rem;
+    border-radius: 15px;
+    position: relative;
+    word-wrap: break-word;
+    max-width: 100%;
+  }
+  
+  .chat-user-message .chat-text-block {
+    background-color: #06b5d42c;
+    border-radius:15px;
+  }
+  
+  .chat-timestamp {
+    font-size: 0.7rem;
+    color: #777;
+    margin-top: 0.2rem;
+    text-align: right;
+  }
+  
+  /* Typing indicator */
+  .chat-typing-indicator .chat-text-block {
+    font-style: italic;
+    background-color: #eeeeee;
+  }
+  
+  /* Input box */
+  .chat-input-container {
+    display: flex;
+    padding: 1rem;
+    background: white;
+    border-top: 1px solid #ccc;
+    gap: 0.5rem;
+  }
+  
+  .chat-input-field {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    outline: none;
+  }
+  
+  .chat-send-button {
+    background-color: #06b6d4;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 0.75rem 1.25rem;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.2s;
+  }
+  
+  .chat-send-button:hover {
+    background-color: #068ba2;
+  }
+  
+  /* Clear button */
+  .chat-clear-button {
+    background: #dc2626;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+  }
