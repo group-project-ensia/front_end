@@ -127,6 +127,8 @@
 .search-container {
   position: relative;
   width: 300px;
+  display: flex;
+  align-items: center;
 }
 
 .search-input {
@@ -138,18 +140,28 @@
   transition: all var(--transition-speed) ease;
 }
 
-.search-input:focus {
-  outline: none;
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
-}
-
-.search-icon {
+.search-btn {
   position: absolute;
-  left: 12px;
+  left: 8px;
   top: 50%;
   transform: translateY(-50%);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
   color: var(--secondary-color);
+  font-size: 18px;
+  transition: background 0.18s;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.search-btn:hover {
+  background: #f3f4f6;
 }
 
 .header-right {

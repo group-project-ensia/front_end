@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import './Classroom.css';
 import { useNavigate } from 'react-router-dom';
+import UserAvatar from '../components/UserAvatar';
 
 const RANDOM_GRADIENTS = [
   'linear-gradient(135deg, #4f46e5 60%, #06b6d4 100%)',
@@ -164,6 +165,10 @@ const Classroom: React.FC = () => {
               <i className="fas fa-cog"></i>
               <span className="nav-text">Settings</span>
             </li>
+            <li data-tooltip="Profile" onClick={() => navigate('/profile')} style={{ cursor: 'pointer' }}>
+              <i className="fas fa-user"></i>
+              <span className="nav-text">Profile</span>
+            </li>
           </ul>
         </nav>
       </aside>
@@ -172,7 +177,9 @@ const Classroom: React.FC = () => {
           <div className="header-left">
             <h1>My Classroom</h1>
             <div className="search-container">
-              <i className="fas fa-search search-icon"></i>
+              <button className="search-btn" aria-label="Search" onClick={() => { /* Optionally trigger search/filter here */ }}>
+                <i className="fas fa-search"></i>
+              </button>
               <input
                 type="text"
                 placeholder="Search classes..."
@@ -187,12 +194,8 @@ const Classroom: React.FC = () => {
               <i className="fas fa-plus"></i>
               Create Class
             </button>
-            <button className="join-class-btn vibrant">
-              <i className="fas fa-sign-in-alt"></i>
-              Join Class
-            </button>
             <div className="user-profile">
-              <img src="https://via.placeholder.com/32" alt="User profile" className="profile-image" />
+              <UserAvatar name="John Doe" size={40} />
             </div>
           </div>
         </header>
@@ -234,6 +237,7 @@ const Classroom: React.FC = () => {
                         e.stopPropagation();
                         setMenuOpenId(classItem.id === menuOpenId ? null : classItem.id);
                       }}
+                      aria-label="Open course menu"
                     >
                       <i className="fas fa-ellipsis-v"></i>
                     </button>

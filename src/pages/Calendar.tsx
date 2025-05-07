@@ -7,6 +7,7 @@ import interactionPlugin from '@fullcalendar/interaction';
 import './Calendar.css';
 import { useNavigate } from 'react-router-dom';
 import { getTodosForCalendar } from '../api/toDoAPI';
+import UserAvatar from '../components/UserAvatar';
 
 interface TodoEvent {
   id: string;
@@ -67,6 +68,7 @@ const Calendar: React.FC = () => {
           <button
             className="menu-toggle"
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            aria-label="Toggle sidebar"
           >
             <i className="fas fa-bars"></i>
           </button>
@@ -113,13 +115,30 @@ const Calendar: React.FC = () => {
               <i className="fas fa-cog"></i>
               <span className="nav-text">Settings</span>
             </li>
+            <li
+              data-tooltip="Profile"
+              onClick={() => navigate('/profile')}
+              className={window.location.pathname.startsWith('/profile') ? 'active' : ''}
+            >
+              <i className="fas fa-user"></i>
+              <span className="nav-text">Profile</span>
+            </li>
           </ul>
         </nav>
       </aside>
 
       {/* Main Content */}
       <div className="main-content">
-        <h1 className="calendar-title">Calendar</h1>
+        <header className="classroom-header">
+          <div className="header-left">
+            <h1 className="calendar-title">Calendar</h1>
+          </div>
+          <div className="header-right">
+            <div className="user-profile">
+              <UserAvatar name="John Doe" size={40} />
+            </div>
+          </div>
+        </header>
         <FullCalendar
           plugins={[dayGridPlugin, interactionPlugin]}
           initialView="dayGridMonth"

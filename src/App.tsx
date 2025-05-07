@@ -11,6 +11,7 @@ import Quizzes from './pages/Quizzes';
 import Todo from './pages/ToDo';
 import Calendar from './pages/Calendar';
 import Chatbot from './pages/Chatbot'; 
+import Profile from './pages/Profile';
 
 function HomePage() {
   const navigate = useNavigate();
@@ -44,6 +45,7 @@ function App() {
           <Route path="/todo" element={<Todo />} />
           <Route path="/calendar" element={<Calendar />} />
           <Route path="/chatbot" element={<Chatbot />} />
+          <Route path="/profile" element={<Profile />} />
         </Routes>
       </div>
     </Router>
