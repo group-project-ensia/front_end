@@ -9,6 +9,7 @@ import {
   updateTodo,
   deleteTodo
 } from '../api/toDoAPI';
+import UserAvatar from '../components/UserAvatar';
 
 interface TodoItem {
   id: string;
@@ -185,18 +186,12 @@ const ToDo: React.FC = () => {
               <span className="nav-text">To-do</span>
             </li>
             <li
-              onClick={() => navigate('/archived')}
-              className={window.location.pathname.startsWith('/archived') ? 'active' : ''}
+              data-tooltip="Profile"
+              onClick={() => navigate('/profile')}
+              className={window.location.pathname.startsWith('/profile') ? 'active' : ''}
             >
-              <i className="fas fa-archive"></i>
-              <span className="nav-text">Archived classes</span>
-            </li>
-            <li
-              onClick={() => navigate('/settings')}
-              className={window.location.pathname.startsWith('/settings') ? 'active' : ''}
-            >
-              <i className="fas fa-cog"></i>
-              <span className="nav-text">Settings</span>
+              <i className="fas fa-user"></i>
+              <span className="nav-text">Profile</span>
             </li>
           </ul>
         </nav>
@@ -222,11 +217,7 @@ const ToDo: React.FC = () => {
               <i className="fas fa-plus"></i> Add Task
             </button>
             <div className="user-profile">
-              <img
-                src="https://via.placeholder.com/32"
-                alt="User profile"
-                className="profile-image"
-              />
+              <UserAvatar name="John Doe" size={40} />
             </div>
           </div>
         </header>

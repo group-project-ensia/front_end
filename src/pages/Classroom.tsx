@@ -157,14 +157,6 @@ const Classroom: React.FC = () => {
               <i className="fas fa-tasks"></i>
               <span className="nav-text">To-do</span>
             </li>
-            <li className="archived" data-tooltip="Archived classes">
-              <i className="fas fa-archive"></i>
-              <span className="nav-text">Archived classes</span>
-            </li>
-            <li className="settings" data-tooltip="Settings">
-              <i className="fas fa-cog"></i>
-              <span className="nav-text">Settings</span>
-            </li>
             <li data-tooltip="Profile" onClick={() => navigate('/profile')} style={{ cursor: 'pointer' }}>
               <i className="fas fa-user"></i>
               <span className="nav-text">Profile</span>

@@ -100,22 +100,6 @@ const Calendar: React.FC = () => {
               <span className="nav-text">To-do</span>
             </li>
             <li
-              data-tooltip="Archived classes"
-              onClick={() => navigate('/archived')}
-              className={window.location.pathname.startsWith('/archived') ? 'active' : ''}
-            >
-              <i className="fas fa-archive"></i>
-              <span className="nav-text">Archived classes</span>
-            </li>
-            <li
-              data-tooltip="Settings"
-              onClick={() => navigate('/settings')}
-              className={window.location.pathname.startsWith('/settings') ? 'active' : ''}
-            >
-              <i className="fas fa-cog"></i>
-              <span className="nav-text">Settings</span>
-            </li>
-            <li
               data-tooltip="Profile"
               onClick={() => navigate('/profile')}
               className={window.location.pathname.startsWith('/profile') ? 'active' : ''}
