@@ -127,12 +127,7 @@ const Classroom: React.FC = () => {
 
   return (
     <div className="app-container classroom-bg">
-      {/* Animated background shapes */}
-      <div className="classroom-modern-bg">
-        <div className="classroom-shape shape-1" />
-        <div className="classroom-shape shape-2" />
-        <div className="classroom-shape shape-3" />
-      </div>
+      {/* Remove animated background shapes */}
       <aside className={`sidebar ${isSidebarOpen ? 'open' : 'closed'}`}>
         <div className="sidebar-header">
           <button 
