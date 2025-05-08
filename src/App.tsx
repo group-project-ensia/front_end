@@ -12,6 +12,8 @@ import Todo from './pages/ToDo';
 import Calendar from './pages/Calendar';
 import Chatbot from './pages/Chatbot'; 
 import Profile from './pages/Profile';
+import Login from './pages/Login';
+import Signup from './pages/Signup';
 
 function HomePage() {
   const navigate = useNavigate();
@@ -38,6 +40,8 @@ function App() {
       <div className="App">
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
           <Route path="/classroom" element={<Classroom />} />
           <Route path="/course/:courseId" element={<CourseDetail />} />
           <Route path="/flashcards" element={<Flashcards />} />

@@ -161,6 +161,18 @@ const Classroom: React.FC = () => {
               <i className="fas fa-user"></i>
               <span className="nav-text">Profile</span>
             </li>
+            <li 
+              data-tooltip="Logout" 
+              onClick={() => {
+                // Add your logout logic here
+                localStorage.removeItem('token'); // Remove auth token
+                navigate('/login'); // Redirect to login page
+              }} 
+              style={{ cursor: 'pointer', marginTop: 'auto' }}
+            >
+              <i className="fas fa-sign-out-alt"></i>
+              <span className="nav-text">Logout</span>
+            </li>
           </ul>
         </nav>
       </aside>
@@ -193,11 +205,7 @@ const Classroom: React.FC = () => {
         </header>
         <main className="classroom-content">
           <div className="class-cards-container">
-            {classList.filter(
-              (classItem) =>
-                classItem.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                classItem.teacher.toLowerCase().includes(searchQuery.toLowerCase())
-            ).map((classItem, idx) => {
+            {filteredClasses.map((classItem, idx) => {
               // For cards without image, show a colored circle with initials
               const initials = classItem.name
                 .split(' ')

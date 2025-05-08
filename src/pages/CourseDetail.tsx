@@ -129,7 +129,7 @@ const CourseDetail: React.FC = () => {
         </div>
         <nav className="sidebar-nav">
           <ul>
-          <li
+            <li
               data-tooltip="Classes"
               onClick={() => navigate('/classroom')} 
               style={{ cursor: 'pointer' }}
@@ -146,17 +146,27 @@ const CourseDetail: React.FC = () => {
               <span className="nav-label">Calendar</span>
             </li>
             <li data-tooltip="To-do" onClick={() => navigate('/todo')} style={{ cursor: 'pointer' }}>
-  <i className="fas fa-tasks"></i>
-  <span className="nav-text">To-do</span>
-</li>
-
-            <li className="nav-item" data-tooltip="Archived classes">
-              <i className="fas fa-archive"></i>
-              <span className="nav-label">Archived classes</span>
+              <i className="fas fa-tasks"></i>
+              <span className="nav-text">To-do</span>
             </li>
-            <li className="nav-item" data-tooltip="Settings">
-              <i className="fas fa-cog"></i>
-              <span className="nav-label">Settings</span>
+            <li
+              data-tooltip="Profile"
+              onClick={() => navigate('/profile')}
+              style={{ cursor: 'pointer' }}
+            >
+              <i className="fas fa-user"></i>
+              <span className="nav-text">Profile</span>
+            </li>
+            <li 
+              data-tooltip="Logout" 
+              onClick={() => {
+                localStorage.removeItem('token');
+                navigate('/login');
+              }} 
+              style={{ cursor: 'pointer', marginTop: 'auto' }}
+            >
+              <i className="fas fa-sign-out-alt"></i>
+              <span className="nav-label">Logout</span>
             </li>
           </ul>
         </nav>
@@ -258,13 +268,12 @@ const CourseDetail: React.FC = () => {
                       Flashcards
                     </button>
                     <button
-  className="action-btn chat-btn improved"
-  onClick={() => navigate('/chatbot')}
->
-  <i className="fas fa-comments"></i>
-  Chat
-</button>
-
+                      className="action-btn chat-btn improved"
+                      onClick={() => navigate('/chatbot')}
+                    >
+                      <i className="fas fa-comments"></i>
+                      Chat
+                    </button>
                   </div>
                 </div>
               </div>

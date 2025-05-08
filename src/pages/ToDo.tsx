@@ -193,6 +193,17 @@ const ToDo: React.FC = () => {
               <i className="fas fa-user"></i>
               <span className="nav-text">Profile</span>
             </li>
+            <li 
+              data-tooltip="Logout" 
+              onClick={() => {
+                localStorage.removeItem('token');
+                navigate('/login');
+              }} 
+              style={{ cursor: 'pointer', marginTop: 'auto' }}
+            >
+              <i className="fas fa-sign-out-alt"></i>
+              <span className="nav-text">Logout</span>
+            </li>
           </ul>
         </nav>
       </aside>
