@@ -1,13 +1,13 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import './CourseDetail.css'; // reuse styles
+import './CourseDetail.css';
 
 const VideoSummary: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const videoUrl = location.state?.videoUrl || '';
 
-  // Example summary placeholder
+ 
   const generatedSummary = `
     This is a sample summary generated from the video:
     ${videoUrl}
