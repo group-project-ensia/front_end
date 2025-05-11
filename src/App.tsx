@@ -6,7 +6,7 @@ import Hero from './pages/Hero';
 import Features from './pages/Features';
 import Classroom from './pages/Classroom';
 import CourseDetail from './pages/CourseDetail';
-import Flashcards from './pages/flashcards'; // adjust path if needed
+import Flashcards from './pages/flashcards';
 import Quizzes from './pages/Quizzes';
 import Todo from './pages/ToDo';
 import Calendar from './pages/Calendar';
@@ -14,6 +14,7 @@ import Chatbot from './pages/Chatbot';
 import Profile from './pages/Profile';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
+import VideoSummary from './pages/VideoSummary';
 
 function HomePage() {
   const navigate = useNavigate();
@@ -50,6 +51,7 @@ function App() {
           <Route path="/calendar" element={<Calendar />} />
           <Route path="/chatbot" element={<Chatbot />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/video-summary" element={<VideoSummary />} />
         </Routes>
       </div>
     </Router>
