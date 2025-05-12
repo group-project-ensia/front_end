@@ -15,6 +15,7 @@ import Profile from './pages/Profile';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import VideoSummary from './pages/VideoSummary';
+ 
 import 'katex/dist/katex.min.css';
 
 

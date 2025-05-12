@@ -1,7 +1,12 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './Classroom.css';
 import { useNavigate } from 'react-router-dom';
 import UserAvatar from '../components/UserAvatar';
+
+/* ─────────────────────────────────────────────── */
+// Temporary hard-coded user ID; replace with auth context when available
+const USER_ID = '681e66a9a1f352628d8ee50a';
+const API_BASE = `/api/users/${USER_ID}/courses`;
 
 const RANDOM_GRADIENTS = [
   'linear-gradient(135deg, #4f46e5 60%, #06b6d4 100%)',
@@ -12,127 +17,196 @@ const RANDOM_GRADIENTS = [
   'linear-gradient(135deg, #fc466b 0%, #3f5efb 100%)',
 ];
 
-interface ClassCard {
-  id: string;
-  name: string;
-  teacher: string;
-  imageUrl?: string;
-  gradient?: string;
+// --- Data Interfaces ---
+interface ChatMessage {
+  _id: string;
+  sender: 'user' | 'bot';
+  message: string;
+  createdAt: string;
+}
+
+interface Flashcard {
+  _id: string;
+  question: string;
+  answer: string;
+}
+
+interface Lecture {
+  _id: string;
+  title: string;
+  pdf: string;
+  summary: string;
+  chats: ChatMessage[];
+  flashcards: Flashcard[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface Course {
+  _id: string;
+  title: string;
+  lecturer: string;
+  lectures: Lecture[];
+  createdAt: string;
+  updatedAt: string;
+  imageUrl?: string;    // UI only
+  gradient?: string;    // UI only
 }
 
 const Classroom: React.FC = () => {
+  const navigate = useNavigate();
+
+  // ── State ─────────────────────────────────
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
-  
-  const sampleClasses: ClassCard[] = [
-    {
-      id: '1',
-      name: 'Mathematics 101',
-      teacher: 'Dr. Smith',
-      imageUrl: 'https://source.unsplash.com/random/800x600/?mathematics',
-    },
-    {
-      id: '2',
-      name: 'Introduction to Physics',
-      teacher: 'Prof. Johnson',
-      imageUrl: 'https://source.unsplash.com/random/800x600/?physics',
-    },
-    {
-      id: '3',
-      name: 'English Literature',
-      teacher: 'Ms. Davis',
-      imageUrl: 'https://source.unsplash.com/random/800x600/?books',
-    },
-  ];
+  const [loading, setLoading] = useState(false);
+  const [courses, setCourses] = useState<Course[]>([]);
 
+  // Create modal state
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [newClassName, setNewClassName] = useState('');
-  const [newTeacher, setNewTeacher] = useState('');
+  const [newTitle, setNewTitle] = useState('');
+  const [newLecturer, setNewLecturer] = useState('');
   const [newImageUrl, setNewImageUrl] = useState('');
-  const [classList, setClassList] = useState<ClassCard[]>(sampleClasses);
-  const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
 
   // Edit modal state
+  const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
-  const [editClassId, setEditClassId] = useState<string | null>(null);
-  const [editName, setEditName] = useState("");
-  const [editTeacher, setEditTeacher] = useState("");
-  const [editImageUrl, setEditImageUrl] = useState("");
+  const [editId, setEditId] = useState<string | null>(null);
+  const [editTitle, setEditTitle] = useState('');
+  const [editLecturer, setEditLecturer] = useState('');
+  const [editImageUrl, setEditImageUrl] = useState('');
 
-  function handleCreateClass() {
-    setShowCreateModal(true);
-  }
-  function handleModalClose() {
-    setShowCreateModal(false);
-    setNewClassName('');
-    setNewTeacher('');
-    setNewImageUrl('');
-  }
-  function handleModalSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!newClassName || !newTeacher) return;
-    const gradient = RANDOM_GRADIENTS[Math.floor(Math.random() * RANDOM_GRADIENTS.length)];
-    setClassList([
-      ...classList,
-      {
-        id: (classList.length + 1).toString(),
-        name: newClassName,
-        teacher: newTeacher,
-        imageUrl: newImageUrl || undefined,
-        gradient: newImageUrl ? undefined : gradient,
-      }
-    ]);
-    handleModalClose();
-  }
+  // ── Helpers ───────────────────────────────
+  const fetchCourses = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch(API_BASE);
+      if (!res.ok) throw new Error(await res.text());
+      const data: Course[] = await res.json();
 
-  const filteredClasses = classList.filter(
-    (classItem) =>
-      classItem.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      classItem.teacher.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const handleCardClick = (classId: string) => {
-    setIsLoading(true);
-    navigate(`/course/${classId}`);
+      const decorated = data.map((c, idx) => ({
+        ...c,
+        imageUrl: '',
+        gradient: RANDOM_GRADIENTS[idx % RANDOM_GRADIENTS.length],
+      }));
+      setCourses(decorated);
+    } catch (err) {
+      alert(`Failed to load courses: ${err}`);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleEditCourse = (classId: string) => {
-    const course = classList.find(c => c.id === classId);
-    if (!course) return;
-    setEditClassId(classId);
-    setEditName(course.name);
-    setEditTeacher(course.teacher);
-    setEditImageUrl(course.imageUrl || "");
-    setEditModalOpen(true);
+  const createCourse = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch(API_BASE, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: newTitle, lecturer: newLecturer }),
+      });
+      if (!res.ok) throw new Error(await res.text());
+      const created: Course = await res.json();
+
+      setCourses(list => [
+        ...list,
+        {
+          ...created,
+          imageUrl: newImageUrl || undefined,
+          gradient: newImageUrl
+            ? undefined
+            : RANDOM_GRADIENTS[list.length % RANDOM_GRADIENTS.length],
+        },
+      ]);
+    } catch (err) {
+      alert(`Create failed: ${err}`);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleEditSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editClassId) return;
-    setClassList(list => list.map(c => c.id === editClassId ? { ...c, name: editName, teacher: editTeacher, imageUrl: editImageUrl } : c));
-    setEditModalOpen(false);
-    setEditClassId(null);
-    setEditName("");
-    setEditTeacher("");
-    setEditImageUrl("");
+  const updateCourse = async () => {
+    if (!editId) return;
+    try {
+      setLoading(true);
+      const res = await fetch(`${API_BASE}/${editId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: editTitle, lecturer: editLecturer }),
+      });
+      if (!res.ok) throw new Error(await res.text());
+      const updated: Course = await res.json();
+
+      setCourses(list =>
+        list.map(c =>
+          c._id === editId
+            ? { ...updated, imageUrl: editImageUrl || c.imageUrl, gradient: c.gradient }
+            : c
+        )
+      );
+    } catch (err) {
+      alert(`Update failed: ${err}`);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleDeleteCourse = (classId: string) => {
-    if (window.confirm('Are you sure you want to delete this course?')) {
-      setClassList(list => list.filter(c => c.id !== classId));
+  const deleteCourse = async (id: string) => {
+    if (!window.confirm('Delete this course?')) return;
+    try {
+      setLoading(true);
+      const res = await fetch(`${API_BASE}/${id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error(await res.text());
+      setCourses(list => list.filter(c => c._id !== id));
+    } catch (err) {
+      alert(`Delete failed: ${err}`);
+    } finally {
+      setLoading(false);
       setMenuOpenId(null);
     }
   };
 
+  // ── Effects ───────────────────────────────
+  useEffect(() => {
+    fetchCourses();
+  }, []);
+
+  // ── Derived ───────────────────────────────
+  const filtered = courses.filter(c =>
+    `${c.title} ${c.lecturer}`.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // ── Handlers ─────────────────────────────
+  const handleCreateSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newTitle || !newLecturer) return;
+    createCourse().then(() => {
+      setShowCreateModal(false);
+      setNewTitle('');
+      setNewLecturer('');
+      setNewImageUrl('');
+    });
+  };
+
+  const handleEditSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    updateCourse().then(() => {
+      setEditModalOpen(false);
+      setEditId(null);
+      setEditTitle('');
+      setEditLecturer('');
+      setEditImageUrl('');
+    });
+  };
+
+  // ── Render ───────────────────────────────
   return (
     <div className="app-container classroom-bg">
-      {/* Remove animated background shapes */}
-      <aside className={`sidebar ${isSidebarOpen ? 'open' : 'closed'}`}>
+      {/* SIDEBAR */}
+      <aside className={`sidebar ${isSidebarOpen ? 'open' : 'closed'}`}>        
         <div className="sidebar-header">
-          <button 
-            className="menu-toggle" 
+          <button
+            className="menu-toggle"
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
             aria-label="Toggle sidebar"
           >
@@ -141,93 +215,86 @@ const Classroom: React.FC = () => {
         </div>
         <nav className="sidebar-nav">
           <ul>
-            <li className="active" data-tooltip="Classes">
-              <i className="fas fa-graduation-cap"></i>
-              <span className="nav-text">Classes</span>
+            <li className="active">
+              <i className="fas fa-graduation-cap" />
+              <span>Classes</span>
+            </li>
+            <li onClick={() => navigate('/calendar')}>
+              <i className="fas fa-calendar-alt" />
+              <span>Calendar</span>
+            </li>
+            <li onClick={() => navigate('/todo')}>
+              <i className="fas fa-tasks" />
+              <span>To-do</span>
+            </li>
+            <li onClick={() => navigate('/profile')}>
+              <i className="fas fa-user" />
+              <span>Profile</span>
             </li>
             <li
-              data-tooltip="Calendar"
-              onClick={() => navigate('/calendar')}
-              style={{ cursor: 'pointer' }}
-            >
-              <i className="fas fa-calendar-alt"></i>
-              <span className="nav-text">Calendar</span>
-            </li>
-            <li data-tooltip="To-do" onClick={() => navigate('/todo')} style={{ cursor: 'pointer' }}>
-              <i className="fas fa-tasks"></i>
-              <span className="nav-text">To-do</span>
-            </li>
-            <li data-tooltip="Profile" onClick={() => navigate('/profile')} style={{ cursor: 'pointer' }}>
-              <i className="fas fa-user"></i>
-              <span className="nav-text">Profile</span>
-            </li>
-            <li 
-              data-tooltip="Logout" 
+              style={{ marginTop: 'auto' }}
               onClick={() => {
-                // Add your logout logic here
-                localStorage.removeItem('token'); // Remove auth token
-                navigate('/login'); // Redirect to login page
-              }} 
-              style={{ cursor: 'pointer', marginTop: 'auto' }}
+                localStorage.removeItem('token');
+                navigate('/login');
+              }}
             >
-              <i className="fas fa-sign-out-alt"></i>
-              <span className="nav-text">Logout</span>
+              <i className="fas fa-sign-out-alt" />
+              <span>Logout</span>
             </li>
           </ul>
         </nav>
       </aside>
+
+      {/* MAIN CONTENT */}
       <div className="main-content">
         <header className="classroom-header">
           <div className="header-left">
             <h1>My Classroom</h1>
             <div className="search-container">
-              <button className="search-btn" aria-label="Search" onClick={() => { /* Optionally trigger search/filter here */ }}>
-                <i className="fas fa-search"></i>
+              <button className="search-btn" aria-label="Search">
+                <i className="fas fa-search" />
               </button>
               <input
                 type="text"
-                placeholder="Search classes..."
+                placeholder="Search classes…"
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={e => setSearchQuery(e.target.value)}
                 className="search-input"
               />
             </div>
           </div>
           <div className="header-right">
-            <button className="create-class-btn vibrant" onClick={handleCreateClass}>
-              <i className="fas fa-plus"></i>
-              Create Class
+            <button
+              className="create-class-btn vibrant"
+              onClick={() => setShowCreateModal(true)}
+            >
+              <i className="fas fa-plus" /> Create Class
             </button>
-            <div className="user-profile">
-              <UserAvatar name="John Doe" size={40} />
-            </div>
+            <UserAvatar name="John Doe" size={40} />
           </div>
         </header>
+
         <main className="classroom-content">
           <div className="class-cards-container">
-            {filteredClasses.map((classItem, idx) => {
-              // For cards without image, show a colored circle with initials
-              const initials = classItem.name
+            {filtered.map((c, idx) => {
+              const initials = c.title
                 .split(' ')
                 .map(w => w[0]?.toUpperCase() || '')
-                .join('').slice(0,2);
-              const circleColors = ['#4f46e5', '#06b6d4', '#f59e42', '#f43f5e', '#06d6a0', '#ffd166'];
-              const circleColor = circleColors[idx % circleColors.length];
+                .slice(0, 2)
+                .join('');
+              const circleColor = RANDOM_GRADIENTS[idx % RANDOM_GRADIENTS.length];
+
               return (
                 <div
-                  key={classItem.id}
+                  key={c._id}
                   className="class-card modern-card animate-in"
                   style={{ animationDelay: `${0.1 * idx}s` }}
                   onClick={e => {
-                    // Only navigate if not clicking the menu button or menu dropdown
-                    const target = e.target as HTMLElement;
                     if (
-                      target.closest('.course-card-menu-btn') ||
-                      target.closest('.course-card-menu-dropdown')
-                    ) {
-                      return;
-                    }
-                    handleCardClick(classItem.id);
+                      (e.target as HTMLElement).closest('.course-card-menu-btn') ||
+                      (e.target as HTMLElement).closest('.course-card-menu-dropdown')
+                    ) return;
+                    navigate(`/course/${c._id}`);
                   }}
                 >
                   <div className="course-card-menu-container top-right">
@@ -235,44 +302,64 @@ const Classroom: React.FC = () => {
                       className="course-card-menu-btn"
                       onClick={e => {
                         e.stopPropagation();
-                        setMenuOpenId(classItem.id === menuOpenId ? null : classItem.id);
+                        setMenuOpenId(c._id === menuOpenId ? null : c._id);
                       }}
                       aria-label="Open course menu"
                     >
-                      <i className="fas fa-ellipsis-v"></i>
+                      <i className="fas fa-ellipsis-v" />
                     </button>
-                    {menuOpenId === classItem.id && (
-                      <div className="course-card-menu-dropdown">
-                        <button onClick={() => handleEditCourse(classItem.id)}>
-                          <i className="fas fa-edit"></i> Edit
+                    {menuOpenId === c._id && (
+                      <div className="course-card-menu-dropdown" onClick={e => e.stopPropagation()}>                        
+                        <button
+                          onClick={() => {
+                            setEditId(c._id);
+                            setEditTitle(c.title);
+                            setEditLecturer(c.lecturer);
+                            setEditImageUrl(c.imageUrl || '');
+                            setEditModalOpen(true);
+                          }}
+                        >
+                          <i className="fas fa-edit" /> Edit
                         </button>
-                        <button onClick={() => handleDeleteCourse(classItem.id)}>
-                          <i className="fas fa-trash"></i> Delete
+                        <button onClick={() => deleteCourse(c._id)}>
+                          <i className="fas fa-trash" /> Delete
                         </button>
                       </div>
                     )}
                   </div>
+
                   <div className="card-top-center">
-                    {classItem.imageUrl ? (
-                      <img src={classItem.imageUrl} alt={classItem.name} className="class-avatar-img" />
+                    {c.imageUrl ? (
+                      <img src={c.imageUrl} alt={c.title} className="class-avatar-img" />
                     ) : (
-                      <div className="class-avatar-circle" style={{ background: circleColor }}>
+                      <div
+                        className="class-avatar-circle"
+                        style={{ background: circleColor }}
+                      >
                         {initials}
                       </div>
                     )}
                   </div>
+
                   <div className="card-info">
-                    <h3 className="class-title">{classItem.name}</h3>
+                    <h3 className="class-title">{c.title}</h3>
                     <div className="teacher-avatar-row">
-                      <img src={`https://ui-avatars.com/api/?name=${encodeURIComponent(classItem.teacher)}&background=4f46e5&color=fff&size=32`} alt={classItem.teacher} className="teacher-img" />
-                      <span className="teacher-name">{classItem.teacher}</span>
+                      <img
+                        src={`https://ui-avatars.com/api/?name=${encodeURIComponent(
+                          c.lecturer
+                        )}&background=4f46e5&color=fff&size=32`}
+                        alt={c.lecturer}
+                        className="teacher-img"
+                      />
+                      <span className="teacher-name">{c.lecturer}</span>
                     </div>
                   </div>
+
                   <button
                     className="view-details-btn modern-btn"
                     onClick={e => {
                       e.stopPropagation();
-                      navigate(`/course/${classItem.id}`);
+                      navigate(`/course/${c._id}`);
                     }}
                   >
                     View Details
@@ -283,68 +370,73 @@ const Classroom: React.FC = () => {
           </div>
         </main>
       </div>
-      {isLoading && (
+
+      {loading && (
         <div className="loading-overlay">
-          <div className="loader"></div>
+          <div className="loader" />
         </div>
       )}
-      {/* Create Class Modal */}
+
+      {/* Create Modal */}
       {showCreateModal && (
         <div className="modal-overlay">
-          <div className="modal">
-            <button className="modal-close" onClick={handleModalClose}>&times;</button>
+          <div className="modal">            
+            <button
+              className="modal-close"
+              onClick={() => setShowCreateModal(false)}
+            >
+              &times;
+            </button>
             <h2>Create a New Class</h2>
-            <form onSubmit={handleModalSubmit} className="create-class-form">
-              <label>Course Name*</label>
-              <input value={newClassName} onChange={e => setNewClassName(e.target.value)} required placeholder="Enter course name" />
-              <label>Teacher*</label>
-              <input value={newTeacher} onChange={e => setNewTeacher(e.target.value)} required placeholder="Enter teacher name" />
-              <label>Picture (optional)</label>
-              <input value={newImageUrl} onChange={e => setNewImageUrl(e.target.value)} placeholder="Paste image URL (optional)" />
-              <button className="create-class-btn vibrant" type="submit">Create</button>
+            <form onSubmit={handleCreateSubmit} className="create-class-form">
+              <label>Course Title*</label>
+              <input
+                value={newTitle}
+                onChange={e => setNewTitle(e.target.value)}
+                required
+              />
+              <label>Lecturer*</label>
+              <input
+                value={newLecturer}
+                onChange={e => setNewLecturer(e.target.value)}
+                required
+              />
+              <label>Image URL (optional)</label>
+              <input
+                value={newImageUrl}
+                onChange={e => setNewImageUrl(e.target.value)}
+              />
+              <button className="create-class-btn vibrant" type="submit">
+                Create
+              </button>
             </form>
           </div>
         </div>
       )}
-      {/* Edit Class Modal */}
+
+      {/* Edit Modal */}
       {editModalOpen && (
         <div className="modal-overlay">
-          <div className="modal-content">
+          <div className="modal">
             <h2>Edit Course</h2>
-            <form onSubmit={handleEditSubmit}>
-              <label className="modal-label">
-                Course Name
-                <input
-                  type="text"
-                  value={editName}
-                  onChange={e => setEditName(e.target.value)}
-                  required
-                />
-              </label>
-              <label className="modal-label">
-                Instructor
-                <input
-                  type="text"
-                  value={editTeacher}
-                  onChange={e => setEditTeacher(e.target.value)}
-                  required
-                />
-              </label>
-              <label className="modal-label">
-                Image URL (optional)
-                <input
-                  type="text"
-                  value={editImageUrl}
-                  onChange={e => setEditImageUrl(e.target.value)}
-                />
-              </label>
+            <form onSubmit={handleEditSubmit} className="edit-class-form">
+              <label>Course Title*</label>
+              <input
+                value={editTitle}
+                onChange={e => setEditTitle(e.target.value)}
+                required
+              />
+              <label>Lecturer*</label>
+              <input
+                value={editLecturer}
+                onChange={e => setEditLecturer(e.target.value)}
+                required
+              />
+              <label>Image URL (optional)</label>
+ <input value={editImageUrl} onChange={e => setEditImageUrl(e.target.value)} />
               <div className="modal-actions">
-                <button type="button" className="modal-cancel-btn" onClick={() => setEditModalOpen(false)}>
-                  Cancel
-                </button>
-                <button type="submit" className="modal-upload-btn consistent">
-                  Save
-                </button>
+                <button type="button" className="modal-cancel-btn" onClick={() => setEditModalOpen(false)}>Cancel</button>
+                <button type="submit" className="modal-upload-btn consistent">Save</button>
               </div>
             </form>
           </div>
