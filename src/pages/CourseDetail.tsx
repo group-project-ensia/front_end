@@ -22,12 +22,56 @@ interface Course {
 }
 
 const CourseDetail: React.FC = () => {
+
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const { courseId } = useParams();
+  const navigate = useNavigate();
+
+  const courses: Course[] = [
+    {
+      id: '1',
+      name: 'Mathematics 101',
+      teacher: 'Dr. Smith',
+      semester: 'Spring 2024',
+      lectures: [
+        {
+          id: '1',
+          title: 'Introduction to Course',
+          date: '2024-03-01',
+          duration: '1:15:00',
+          thumbnailUrl: 'https://source.unsplash.com/random/400x225/?lecture',
+          notes: 'Course overview and syllabus discussion',
+        },
+      ],
+    },
+    {
+      id: '2',
+      name: 'Introduction to Physics',
+      teacher: 'Prof. Johnson',
+      semester: 'Spring 2024',
+      lectures: [
+        {
+          id: '1',
+          title: 'Physics Basics',
+          date: '2024-03-02',
+          duration: '1:10:00',
+          thumbnailUrl: 'https://source.unsplash.com/random/400x225/?physics',
+          notes: 'First lecture: basic concepts.',
+        },
+      ],
+    },
+  ];
+
+  const course = courses.find(c => c.id === courseId) || courses[0];
+  const lectures = course.lectures;
+
   const { courseId } = useParams<{ courseId: string }>();
   const navigate      = useNavigate();
   const userId        = '681e66a9a1f352628d8ee50a'; // replace with auth context
 
   // Sidebar state
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
 
   // Data state
   const [course, setCourse]               = useState<Course | null>(null);
@@ -44,6 +88,19 @@ const CourseDetail: React.FC = () => {
   const [lectureMenuOpenId, setLectureMenuOpenId] = useState<string | null>(null);
 
   const [editLectureModalOpen, setEditLectureModalOpen] = useState(false);
+
+  const [editLectureId, setEditLectureId] = useState<string | null>(null);
+  const [editLectureName, setEditLectureName] = useState("");
+  //for video summary
+  const [showSummarizeModal, setShowSummarizeModal] = useState(false);
+  const [videoUrlInput, setVideoUrlInput] = useState("");
+
+
+  // For deleting lectures
+  const handleDeleteLecture = (lectureId: string) => {
+    setLecturesState(list => list.filter(l => l.id !== lectureId));
+    setLectureMenuOpenId(null);
+
   const [editLectureId, setEditLectureId]               = useState<string | null>(null);
   const [editLectureName, setEditLectureName]           = useState('');
 
@@ -105,6 +162,7 @@ const CourseDetail: React.FC = () => {
     } catch (e) {
       console.error(e);
     }
+ 
   };
 
   // START edit
@@ -120,6 +178,14 @@ const CourseDetail: React.FC = () => {
   const handleEditLectureSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editLectureId) return;
+
+    setLecturesState(list =>
+      list.map(l => (l.id === editLectureId ? { ...l, title: editLectureName } : l))
+    );
+    setEditLectureModalOpen(false);
+    setEditLectureId(null);
+    setEditLectureName("");
+
     try {
       const token = localStorage.getItem('token') || '';
       const res = await fetch(
@@ -143,6 +209,7 @@ const CourseDetail: React.FC = () => {
     } catch (e) {
       console.error(e);
     }
+ 
   };
 
   // UPLOAD lecture
@@ -177,9 +244,18 @@ const CourseDetail: React.FC = () => {
     setVideoUrlInput('');
   };
 
+
+  const handleSummarizeVideo = () => {
+    if (!videoUrlInput.trim()) return;
+    navigate('/video-summary', { state: { videoUrl: videoUrlInput.trim() } });
+    setShowSummarizeModal(false);
+    setVideoUrlInput('');
+  };
+
   if (loading) return <div className="loading">Loading...</div>;
   if (error)   return <div className="error">{error}</div>;
   if (!course) return <div className="no-course">Course not found</div>;
+ 
 
   return (
     <div className="app-container">
@@ -205,12 +281,21 @@ const CourseDetail: React.FC = () => {
         </nav>
       </aside>
 
+
       {/* Main */}
+
       <div className="main-content">
         {/* Header */}
         <div className="course-visual-header small flex-header">
           <h1 className="course-detail-title small">{course.name}</h1>
           <div className="action-buttons-row">
+
+            <button className="upload-lecture-btn consistent" onClick={() => setShowUploadModal(true)}>
+              <i className="fas fa-upload"></i> Upload Lecture
+            </button>
+            <button className="upload-lecture-btn consistent" onClick={() => setShowSummarizeModal(true)}>
+              <i className="fas fa-video"></i> Summarize Video
+
             <button
               className="upload-lecture-btn consistent"
               onClick={() => setShowUploadModal(true)}
@@ -223,11 +308,15 @@ const CourseDetail: React.FC = () => {
               onClick={() => setShowSummarizeModal(true)}
             >
               <i className="fas fa-video"/> Transcript&nbsp;Video
+
             </button>
           </div>
         </div>
 
+
+
         {/* Upload Modal */}
+
         {showUploadModal && (
           <div className="modal-overlay">
             <div className="modal-content">
@@ -266,6 +355,21 @@ const CourseDetail: React.FC = () => {
           </div>
         )}
 
+        
+        {showSummarizeModal && (
+          <div className="modal-overlay">
+            <div className="modal-content">
+              <h2>Summarize Video</h2>
+              <form onSubmit={e => { e.preventDefault(); handleSummarizeVideo(); }}>
+                <label className="modal-label">
+                  Video URL
+                  <input type="url" value={videoUrlInput} onChange={e => setVideoUrlInput(e.target.value)} required />
+                </label>
+                <div className="modal-actions">
+                  <button type="button" className="modal-cancel-btn" onClick={() => setShowSummarizeModal(false)}>Cancel</button>
+                  <button type="submit" className="modal-upload-btn consistent">Summarize</button>
+
+
         {/* Summarize Modal */}
         {showSummarizeModal && (
           <div className="modal-overlay">
@@ -296,13 +400,16 @@ const CourseDetail: React.FC = () => {
                   <button type="submit" className="modal-upload-btn consistent">
                     Summarize
                   </button>
+
                 </div>
               </form>
             </div>
           </div>
         )}
 
+
         {/* Lectures Grid */}
+
         <main className="lectures-container improved">
           <h2 className="lectures-title improved">Lectures</h2>
           <div className="lectures-grid improved">
@@ -322,12 +429,17 @@ const CourseDetail: React.FC = () => {
                   </button>
                   {lectureMenuOpenId === lec._id && (
                     <div className="lecture-card-menu-dropdown">
+
+                      <button onClick={() => handleEditLecture(lecture.id)}><i className="fas fa-edit"></i> Edit</button>
+                      <button onClick={() => handleDeleteLecture(lecture.id)}><i className="fas fa-trash"></i> Delete</button>
+
                       <button onClick={() => handleEditLecture(lec._id)}>
                         <i className="fas fa-edit"/> Edit
                       </button>
                       <button onClick={() => handleDeleteLecture(lec._id)}>
                         <i className="fas fa-trash"/> Delete
                       </button>
+
                     </div>
                   )}
                 </div>

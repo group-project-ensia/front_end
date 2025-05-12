@@ -1,5 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import './Chatbot.css';
+import { BlockMath, InlineMath } from 'react-katex';
+import 'katex/dist/katex.min.css';
 
 const Chatbot: React.FC = () => {
   const [messages, setMessages] = useState<{ role: 'user' | 'bot'; text: string; timestamp: string }[]>(() => {
@@ -78,8 +80,54 @@ const Chatbot: React.FC = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isTyping]);
 
+  const renderMessageContent = (text: string) => {
+  // First check for LaTeX content
+  const latexRegex = /(\$\$?[^$]*\$?\$?)/;
+  if (latexRegex.test(text)) {
+    // Split by both single $...$ and $$...$$ LaTeX delimiters
+    const parts = text.split(latexRegex);
+    
+    return parts.map((part, idx) => {
+      if (!part.trim()) return null;
+      
+      if (part.startsWith('$') && part.endsWith('$') && part.length > 1) {
+        try {
+          const math = part.slice(1, -1);
+          return <InlineMath key={idx} math={math} />;
+        } catch (error) {
+          console.error('Error rendering LaTeX:', error);
+          return <span key={idx} dangerouslySetInnerHTML={renderMarkdown(part)} />;
+        }
+      }
+      else if (part.startsWith('$$') && part.endsWith('$$') && part.length > 2) {
+        try {
+          const math = part.slice(2, -2);
+          return <BlockMath key={idx} math={math} />;
+        } catch (error) {
+          console.error('Error rendering LaTeX:', error);
+          return <span key={idx} dangerouslySetInnerHTML={renderMarkdown(part)} />;
+        }
+      }
+      return <span key={idx} dangerouslySetInnerHTML={renderMarkdown(part)} />;
+    });
+  }
+  
+  // If no LaTeX, just render markdown
+  return <span dangerouslySetInnerHTML={renderMarkdown(text)} />;
+};
+const renderMarkdown = (text: string) => {
+  // Simple markdown to HTML conversion
+  let html = text
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // bold
+    .replace(/\*(.*?)\*/g, '<em>$1</em>') // italic
+    .replace(/\n/g, '<br />'); // line breaks
+
+  return { __html: html };
+};
+
   return (
     <div className="chat-main-content">
+      
       <header className="chat-header">
         <span>AI Chat Assistant</span>
         <button className="chat-clear-button" onClick={handleClear}>Clear Chat</button>
@@ -89,14 +137,16 @@ const Chatbot: React.FC = () => {
         <div className="chat-container">
           <div className="chat-messages">
             {messages.map((msg, idx) => (
-              <div key={idx} className={`chat-message ${msg.role === 'user' ? 'chat-user-message' : 'chat-bot-message'}`}>
-                <div className="chat-text-block">{msg.text}</div>
-                <div className="chat-message-meta">
-                  <span className="chat-avatar">{msg.role === 'user' ? '🧑' : '🤖'}</span>
-                  <span className="chat-timestamp">{msg.timestamp}</span>
-                </div>
-              </div>
-            ))}
+  <div key={idx} className={`chat-message ${msg.role === 'user' ? 'chat-user-message' : 'chat-bot-message'}`}>
+    <div className="chat-text-block">
+      {renderMessageContent(msg.text)}
+    </div>
+    <div className="chat-message-meta">
+      <span className="chat-avatar">{msg.role === 'user' ? '🧑' : '🤖'}</span>
+      <span className="chat-timestamp">{msg.timestamp}</span>
+    </div>
+  </div>
+))}
             {isTyping && (
               <div className="chat-message chat-bot-message chat-typing-indicator">Typing...</div>
             )}
