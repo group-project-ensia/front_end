@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import 'katex/dist/katex.min.css';
+import { InlineMath, BlockMath } from 'react-katex';
 import './CourseDetail.css';
 
 // --- TypeScript Interfaces ---
@@ -50,6 +52,10 @@ const CourseDetail: React.FC = () => {
   // ---- NEW: video-summary state ----
   const [showSummarizeModal, setShowSummarizeModal] = useState(false);
   const [videoUrlInput, setVideoUrlInput]           = useState('');
+
+  const [summarizingId, setSummarizingId] = useState<string | null>(null);
+  const [showSummaryModal, setShowSummaryModal] = useState(false);
+  const [currentSummary, setCurrentSummary] = useState('');
 
   // Fetch course & lectures from backend
   useEffect(() => {
@@ -175,6 +181,52 @@ const CourseDetail: React.FC = () => {
     navigate('/video-summary', { state: { videoUrl: videoUrlInput.trim() } });
     setShowSummarizeModal(false);
     setVideoUrlInput('');
+  };
+
+  // Update summarize function
+  const handleSummarize = async (lectureId: string) => {
+    try {
+      setSummarizingId(lectureId);
+      setError(null);
+      const token = localStorage.getItem('token') || '';
+      
+      console.log('Sending summarize request for lecture:', lectureId);
+      
+      // Use the correct endpoint based on the nested structure
+      const res = await fetch(
+        `/api/users/${userId}/courses/${courseId}/lectures/${lectureId}/summarize`,
+        {
+          method: 'POST',
+          headers: { 
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+      
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || 'Summarization failed');
+      }
+      
+      const data = await res.json();
+      console.log('Received summary:', data);
+      
+      if (!data.summary) {
+        throw new Error('No summary received from server');
+      }
+      
+      setCurrentSummary(data.summary);
+      setShowSummaryModal(true);
+    } catch (err) {
+      console.error('Error summarizing PDF:', err);
+      setError(err instanceof Error ? err.message : 'Failed to summarize PDF');
+      // Show error in modal
+      setCurrentSummary('Error: ' + (err instanceof Error ? err.message : 'Failed to summarize PDF'));
+      setShowSummaryModal(true);
+    } finally {
+      setSummarizingId(null);
+    }
   };
 
   if (loading) return <div className="loading">Loading...</div>;
@@ -311,6 +363,7 @@ const CourseDetail: React.FC = () => {
                 <div className="lecture-card-menu-container top-right">
                   <button
                     className="lecture-card-menu-btn"
+                    title="Lecture options menu"
                     onClick={e => {
                       e.stopPropagation();
                       setLectureMenuOpenId(
@@ -322,10 +375,16 @@ const CourseDetail: React.FC = () => {
                   </button>
                   {lectureMenuOpenId === lec._id && (
                     <div className="lecture-card-menu-dropdown">
-                      <button onClick={() => handleEditLecture(lec._id)}>
+                      <button 
+                        onClick={() => handleEditLecture(lec._id)}
+                        title="Edit lecture"
+                      >
                         <i className="fas fa-edit"/> Edit
                       </button>
-                      <button onClick={() => handleDeleteLecture(lec._id)}>
+                      <button 
+                        onClick={() => handleDeleteLecture(lec._id)}
+                        title="Delete lecture"
+                      >
                         <i className="fas fa-trash"/> Delete
                       </button>
                     </div>
@@ -346,8 +405,16 @@ const CourseDetail: React.FC = () => {
                   </div>
 
                   <div className="lecture-actions improved">
-                    <button className="action-btn summarize-btn improved">
-                      <i className="fas fa-book-reader"/> Summarize
+                    <button 
+                      className="action-btn summarize-btn improved"
+                      onClick={() => handleSummarize(lec._id)}
+                      disabled={summarizingId === lec._id}
+                    >
+                      {summarizingId === lec._id ? (
+                        <span><i className="fas fa-spinner fa-spin" /> Summarizing...</span>
+                      ) : (
+                        <span><i className="fas fa-book-reader"/> Summarize</span>
+                      )}
                     </button>
                     <button
                       className="action-btn quiz-btn improved"
@@ -373,6 +440,25 @@ const CourseDetail: React.FC = () => {
             ))}
           </div>
         </main>
+
+        {/* Summary Modal */}
+        {showSummaryModal && (
+          <div className="modal-overlay">
+            <div className="modal-content summary-modal">
+              <h2>PDF Summary</h2>
+              <div className="summary-content latex-content">
+                {renderLatexContent(currentSummary)}
+              </div>
+              <button
+                title="Close summary modal"
+                className="close-btn"
+                onClick={() => setShowSummaryModal(false)}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Edit Modal */}
         {editLectureModalOpen && (
@@ -408,5 +494,224 @@ const CourseDetail: React.FC = () => {
     </div>
   );
 };
+
+const renderLatexContent = (content: string) => {
+  // Check if content contains a full LaTeX document
+  if (content.includes('\\documentclass') && content.includes('\\begin{document}')) {
+    // Extract just the content between \begin{document} and \end{document}
+    const documentMatch = content.match(/\\begin{document}([\s\S]*?)\\end{document}/);
+    if (documentMatch && documentMatch[1]) {
+      content = documentMatch[1].trim();
+    }
+  }
+
+  // Split content into sections for better parsing
+  const sections: JSX.Element[] = [];
+  let currentSection: JSX.Element[] = [];
+  let inItemize = false;
+  let inEnumerate = false;
+  let sectionKey = 0;
+
+  // Process each line
+  content.split('\n').forEach((line, index) => {
+    const trimmedLine = line.trim();
+    
+    // Skip empty lines or LaTeX document commands
+    if (!trimmedLine || 
+        trimmedLine.startsWith('\\documentclass') || 
+        trimmedLine.startsWith('\\usepackage') || 
+        trimmedLine === '\\begin{document}' || 
+        trimmedLine === '\\end{document}') {
+      return;
+    }
+
+    // Handle LaTeX section headings
+    if (trimmedLine.startsWith('\\section{')) {
+      // Push current section if not empty
+      if (currentSection.length > 0) {
+        sections.push(<div key={`section-${sectionKey++}`}>{currentSection}</div>);
+        currentSection = [];
+      }
+      
+      const titleMatch = trimmedLine.match(/\\section{(.*?)}/);
+      const title = titleMatch ? titleMatch[1] : '';
+      currentSection.push(<h2 key={`title-${index}`} className="latex-section">{title}</h2>);
+      return;
+    }
+
+    // Handle LaTeX subsection headings
+    if (trimmedLine.startsWith('\\subsection{')) {
+      const titleMatch = trimmedLine.match(/\\subsection{(.*?)}/);
+      const title = titleMatch ? titleMatch[1] : '';
+      currentSection.push(<h3 key={`subtitle-${index}`} className="latex-subsection">{title}</h3>);
+      return;
+    }
+
+    // Handle Markdown-style section headings (like **Title**)
+    if (trimmedLine.startsWith('**') && trimmedLine.endsWith('**')) {
+      const title = trimmedLine.replace(/^\*\*|\*\*$/g, '');
+      
+      // If it looks like a main section (no number prefix)
+      if (!title.match(/^\d+\./)) {
+        if (currentSection.length > 0) {
+          sections.push(<div key={`section-${sectionKey++}`}>{currentSection}</div>);
+          currentSection = [];
+        }
+        currentSection.push(<h2 key={`title-${index}`} className="latex-section">{title}</h2>);
+      } else {
+        // This is likely a numbered list item with bold title
+        currentSection.push(<h4 key={`numbered-title-${index}`} className="latex-item-title">{title}</h4>);
+      }
+      return;
+    }
+
+    // Handle Markdown-style numbered items (like "1. **Title**: content")
+    const numberedItemMatch = trimmedLine.match(/^(\d+\.\s*)(.*)/);
+    if (numberedItemMatch) {
+      const [, number, content] = numberedItemMatch;
+      // Handle bold title within item if present
+      const titleMatch = content.match(/^\*\*(.+?)\*\*:\s*(.*)/);
+      
+      if (titleMatch) {
+        const [, title, description] = titleMatch;
+        currentSection.push(
+          <div key={`numbered-item-${index}`} className="latex-numbered-item">
+            <span className="latex-item-number">{number}</span>
+            <strong>{title}: </strong>
+            <span>{description}</span>
+          </div>
+        );
+      } else {
+        currentSection.push(
+          <div key={`numbered-item-${index}`} className="latex-numbered-item">
+            <span className="latex-item-number">{number}</span>
+            <span>{content}</span>
+          </div>
+        );
+      }
+      return;
+    }
+
+    // Handle LaTeX itemize environment
+    if (trimmedLine === '\\begin{itemize}') {
+      inItemize = true;
+      currentSection.push(<ul key={`list-${index}`} className="latex-itemize">{[]}</ul>);
+      return;
+    } else if (trimmedLine === '\\end{itemize}') {
+      inItemize = false;
+      return;
+    }
+
+    // Handle LaTeX enumerate environment
+    if (trimmedLine === '\\begin{enumerate}') {
+      inEnumerate = true;
+      currentSection.push(<ol key={`enum-${index}`} className="latex-enumerate">{[]}</ol>);
+      return;
+    } else if (trimmedLine === '\\end{enumerate}') {
+      inEnumerate = false;
+      return;
+    }
+
+    // Handle list items
+    if (trimmedLine.startsWith('\\item') && (inItemize || inEnumerate)) {
+      const itemContent = trimmedLine.substring(5).trim();
+      const listEl = currentSection[currentSection.length - 1] as JSX.Element;
+      
+      if (listEl && (listEl.type === 'ul' || listEl.type === 'ol')) {
+        const newChildren = [...(listEl.props.children || []), 
+          <li key={`item-${index}`}>{parseLatexInline(itemContent)}</li>];
+        
+        currentSection[currentSection.length - 1] = React.cloneElement(
+          listEl, { children: newChildren }
+        );
+      }
+      return;
+    }
+
+    // Handle math environments
+    if (trimmedLine.startsWith('$$') || trimmedLine.startsWith('\\[')) {
+      const mathContent = trimmedLine
+        .replace(/^\$\$(.*)\$\$$/, '$1')
+        .replace(/^\\\[(.*)\\\]$/, '$1')
+        .trim();
+      
+      try {
+        currentSection.push(<BlockMath key={`math-${index}`} math={mathContent} />);
+      } catch (e) {
+        console.error('Error rendering BlockMath:', e);
+        currentSection.push(<pre key={`math-error-${index}`}>{mathContent}</pre>);
+      }
+      return;
+    }
+
+    // Handle regular paragraphs with potential inline math
+    if (!inItemize && !inEnumerate) {
+      currentSection.push(<p key={`p-${index}`}>{parseLatexInline(trimmedLine)}</p>);
+    }
+  });
+
+  // Add the last section
+  if (currentSection.length > 0) {
+    sections.push(<div key={`section-${sectionKey}`}>{currentSection}</div>);
+  }
+
+  return sections;
+}
+
+// Helper function to parse inline LaTeX within text
+const parseLatexInline = (text: string) => {
+  // If no math delimiters, return as is
+  if (!text.includes('$') && !text.includes('\\(')) {
+    return text;
+  }
+
+  // Split by math delimiters and render each part
+  const parts = [];
+  let inMath = false;
+  let mathContent = '';
+  let textContent = '';
+  let partKey = 0;
+
+  for (let i = 0; i < text.length; i++) {
+    if (text[i] === '$' || (text[i] === '\\' && text[i+1] === '(')) {
+      // Found start/end of math
+      if (inMath) {
+        // End of math
+        inMath = false;
+        try {
+          parts.push(<InlineMath key={`inline-${partKey++}`} math={mathContent} />);
+        } catch (e) {
+          console.error('Error rendering InlineMath:', e);
+          parts.push(<code key={`inline-error-${partKey++}`}>{mathContent}</code>);
+        }
+        mathContent = '';
+        
+        // Skip the closing delimiter
+        if (text[i] === '\\') i++; // Skip ) in \)
+      } else {
+        // Start of math
+        inMath = true;
+        if (textContent) {
+          parts.push(<span key={`text-${partKey++}`}>{textContent}</span>);
+          textContent = '';
+        }
+        
+        // Skip the opening delimiter
+        if (text[i] === '\\') i++; // Skip ( in \(
+      }
+    } else if (inMath) {
+      mathContent += text[i];
+    } else {
+      textContent += text[i];
+    }
+  }
+
+  // Add any remaining text
+  if (textContent) {
+    parts.push(<span key={`text-${partKey++}`}>{textContent}</span>);
+  }
+
+  return <>{parts}</>;
+}
 
 export default CourseDetail;
