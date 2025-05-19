@@ -32,6 +32,9 @@ const CourseDetail: React.FC = () => {
 
   //flashcards 
   const [flashcardLoadingId, setFlashcardLoadingId] = useState<string | null>(null);
+
+  //Quiz
+  const [QuizLoadingId, setQuizLoadingId] = useState<string | null>(null);
   // Sidebar state
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
@@ -376,6 +379,82 @@ const handleStartChat = async (lectureId: string) => {
   }
 };
 
+//Quiz
+const handleGenerateQuiz = async (lectureId: string) => {
+  try {
+    setQuizLoadingId(lectureId); // Reuse the same loading ID
+
+    const token = localStorage.getItem('token') || '';
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      ...(token && { Authorization: `Bearer ${token}` }),
+    };
+
+    console.log('Starting quiz generation for lecture:', lectureId);
+
+    // Step 1: Fetch context
+    const contextRes = await fetch(
+      `/api/users/${userId}/courses/${courseId}/lectures/${lectureId}/context`,
+      { headers }
+    );
+
+    if (!contextRes.ok) {
+      const errorData = await contextRes.json();
+      console.error('Context fetch error:', errorData);
+      throw new Error(errorData.message || 'Failed to fetch lecture context');
+    }
+
+    const { context } = await contextRes.json();
+
+    // Step 2: Generate quiz
+    const prompt = `Based on the following lecture text, generate 5 multiple-choice quiz questions. Each question should be an object like this:
+
+{
+  "question": "What is ...?",
+  "options": ["Option A", "Option B", "Option C", "Option D"],
+  "answer": "Option A"
+}
+Return the result as a clean JSON array.`;
+
+    const quizRes = await fetch('/api/chats/ask-bot', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        text: prompt,
+        pdf: context,
+      }),
+    });
+
+    if (!quizRes.ok) {
+      const errorData = await quizRes.json();
+      console.error('Quiz generation error:', errorData);
+      throw new Error(errorData.message || 'Failed to generate quiz');
+    }
+
+    let { text } = await quizRes.json();
+    console.log('Raw quiz response:', text);
+
+    text = text.trim().replace(/^```json\n?/, '').replace(/\n?```$/, '');
+    if (!text.endsWith(']') && !text.endsWith('}')) {
+      text += ']';
+    }
+
+    const quizQuestions = JSON.parse(text);
+    console.log('Generated quiz:', quizQuestions);
+
+    // Store and navigate
+    localStorage.setItem(`quiz-${lectureId}`, JSON.stringify(quizQuestions));
+    navigate('/quizzes', { state: { quizQuestions } });
+
+  } catch (err) {
+    console.error('Full quiz error:', err);
+    alert(`Failed to generate quiz: ${err instanceof Error ? err.message : String(err)}`);
+  } finally {
+    setQuizLoadingId(null);
+  }
+};
+
+
   if (loading) return <div className="loading">Loading...</div>;
   if (error)   return <div className="error">{error}</div>;
   if (!course) return <div className="no-course">Course not found</div>;
@@ -564,11 +643,17 @@ const handleStartChat = async (lectureId: string) => {
                       )}
                     </button>
                     <button
-                      className="action-btn quiz-btn improved"
-                      onClick={() => navigate('/quizzes')}
-                    >
-                      <i className="fas fa-question-circle"/> Quiz
-                    </button>
+  className="action-btn quiz-btn improved"
+  onClick={() => handleGenerateQuiz(lec._id)}
+  disabled={QuizLoadingId === lec._id}
+>
+  {QuizLoadingId === lec._id ? (
+    <span><i className="fas fa-spinner fa-spin" /> Generating...</span>
+  ) : (
+    <span><i className="fas fa-question-circle" /> Quiz</span>
+  )}
+</button>
+
                     <button
   className="action-btn flashcard-btn improved"
   onClick={() => handleGenerateFlashcards(lec._id)}
