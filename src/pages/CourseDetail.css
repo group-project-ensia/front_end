@@ -920,3 +920,13 @@
   display: flex;
   justify-content: center;
 }
+
+.fa-spinner.fa-spin {
+  margin-right: 5px;
+}
+
+/* Disabled button style */
+.action-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}

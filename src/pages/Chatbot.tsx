@@ -4,47 +4,94 @@ import { BlockMath, InlineMath } from 'react-katex';
 import 'katex/dist/katex.min.css';
 
 const Chatbot: React.FC = () => {
-  const [messages, setMessages] = useState<{ role: 'user' | 'bot'; text: string; timestamp: string }[]>(() => {
-    const saved = localStorage.getItem('chatMessages');
-    return saved ? JSON.parse(saved) : [];
-  });
-
+  const [messages, setMessages] = useState<{ role: 'user' | 'bot'; text: string; timestamp: string }[]>([]);
   const [input, setInput] = useState('');
   const [chatId, setChatId] = useState<string | null>(null);
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
+  // Load saved state on initial render
   useEffect(() => {
-    const createChat = async () => {
-      try {
-        const response = await fetch('http://localhost:5000/api/chats', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            courseId: '67f44b53f0db698b1023c192',
-            messages: []
-          })
-        });
-        const data = await response.json();
-        setChatId(data._id);
-      } catch (error) {
-        console.error('Failed to create chat:', error);
+  const loadChat = async () => {
+    const savedChatId = localStorage.getItem('chatId');
+    const savedMessages = localStorage.getItem('chatMessages');
+
+    if (savedChatId && savedMessages) {
+      setChatId(savedChatId);
+      setMessages(JSON.parse(savedMessages));
+    } else {
+      await createNewChat(); // Initialize only if no saved data
+    }
+    setIsLoading(false);
+  };
+
+  loadChat();
+}, []); // Empty dependency array = runs once on mount
+
+  const createNewChat = async () => {
+    try {
+      const lectureID = "6823468bdaa7d6ba96d7b110";
+      const courseID = "68231fefd0483d35afc6c3e2";
+      const userID = "681e66a9a1f352628d8ee50a";
+
+      const contextRes = await fetch(`http://localhost:5000/api/users/${userID}/courses/${courseID}/lectures/${lectureID}/context`);
+      const contextData = await contextRes.json();
+      const extractedText = contextData.context;
+
+      const prompt = `You are a helpful assistant trained to answer questions based on the following PDF content...
+
+Text:
+${extractedText}
+
+Now, feel free to ask me any questions related to the above text.`;
+
+      const response = await fetch('http://localhost:5000/api/chats', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          courseId: courseID,
+          messages: [{ role: 'user', content: prompt }]
+        })
+      });
+
+      const data = await response.json();
+      setChatId(data._id);
+      localStorage.setItem('chatId', data._id);
+      
+      const initialMessage = { 
+        role: 'user' as const, 
+        text: prompt, 
+        timestamp: new Date().toLocaleTimeString() 
+      };
+      
+      setMessages([initialMessage]);
+      localStorage.setItem('chatMessages', JSON.stringify([initialMessage]));
+    } catch (error) {
+      console.error('Failed to create chat with PDF context:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Save messages and chatId whenever they change
+  useEffect(() => {
+    if (messages.length > 0 || chatId) {
+      localStorage.setItem('chatMessages', JSON.stringify(messages));
+      if (chatId) {
+        localStorage.setItem('chatId', chatId);
       }
-    };
-
-    createChat();
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem('chatMessages', JSON.stringify(messages));
-  }, [messages]);
+    }
+  }, [messages, chatId]);
 
   const handleSend = async () => {
     if (!input.trim() || !chatId) return;
 
     const timestamp = new Date().toLocaleTimeString();
     const userMessage = { role: 'user' as const, text: input, timestamp };
-    setMessages(prev => [...prev, userMessage]);
+    const newMessages = [...messages, userMessage];
+    
+    setMessages(newMessages);
     setInput('');
     setIsTyping(true);
 
@@ -57,24 +104,38 @@ const Chatbot: React.FC = () => {
 
       const data = await response.json();
       const botReply = data.messages[data.messages.length - 1].text;
-      const botMessage = { role: 'bot' as const, text: botReply, timestamp: new Date().toLocaleTimeString() };
+      const botMessage = { 
+        role: 'bot' as const, 
+        text: botReply, 
+        timestamp: new Date().toLocaleTimeString() 
+      };
 
       setMessages(prev => [...prev, botMessage]);
     } catch (error) {
       console.error('Error sending message:', error);
+      // Revert if there's an error
+      setMessages(messages);
     } finally {
       setIsTyping(false);
     }
   };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') handleSend();
-  };
+  
 
   const handleClear = () => {
     setMessages([]);
+    setChatId(null);
     localStorage.removeItem('chatMessages');
+    localStorage.removeItem('chatId');
+    createNewChat(); // Start a fresh chat session
   };
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  if (e.key === 'Enter') {
+    handleSend();
+  }
+};
+
+  // Rest of your component code remains the same...
+  // (renderMessageContent, renderMarkdown, and the JSX return)
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -124,6 +185,15 @@ const renderMarkdown = (text: string) => {
 
   return { __html: html };
 };
+
+if (isLoading) {
+  return (
+    <div className="chat-loading-screen">
+      <div className="spinner" />
+      <p>Loading chat context...</p>
+    </div>
+  );
+}
 
   return (
     <div className="chat-main-content">

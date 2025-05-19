@@ -28,6 +28,10 @@ const CourseDetail: React.FC = () => {
   const navigate      = useNavigate();
   const userId        = '681e66a9a1f352628d8ee50a'; // replace with auth context
 
+  const [chatLoadingId, setChatLoadingId] = useState<string | null>(null);
+
+  //flashcards 
+  const [flashcardLoadingId, setFlashcardLoadingId] = useState<string | null>(null);
   // Sidebar state
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
@@ -229,6 +233,149 @@ const CourseDetail: React.FC = () => {
     }
   };
 
+  //flashcards
+  const handleGenerateFlashcards = async (lectureId: string) => {
+  try {
+    setFlashcardLoadingId(lectureId); // <-- show loading
+    const token = localStorage.getItem('token') || '';
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      ...(token && { Authorization: `Bearer ${token}` }),
+    };
+
+
+    console.log('Starting flashcard generation for lecture:', lectureId); // Debug log
+
+    // Step 1: Get context
+    const contextRes = await fetch(
+      `/api/users/${userId}/courses/${courseId}/lectures/${lectureId}/context`,
+      { headers }
+    );
+    
+    if (!contextRes.ok) {
+      const errorData = await contextRes.json();
+      console.error('Context fetch error:', errorData); // Debug log
+      throw new Error(errorData.message || 'Failed to fetch lecture context');
+    }
+    
+    const { context } = await contextRes.json();
+    console.log('Received context:', context); // Debug log
+
+    const prompt = `Based on the following text, generate 10 flashcards. Each flashcard should contain a question and an answer. Return the result in a clean JSON array format like this: { "question": "...", "answer": "..." }, ...`;
+
+    // Step 2: Send to bot
+    const flashRes = await fetch('/api/chats/ask-bot', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        text: prompt,
+        pdf: context,
+      }),
+    });
+
+    if (!flashRes.ok) {
+      const errorData = await flashRes.json();
+      console.error('Flashcard generation error:', errorData); // Debug log
+      throw new Error(errorData.message || 'Failed to generate flashcards');
+    }
+    
+    let { text } = await flashRes.json();
+    console.log('Raw response:', text); // Debug log
+
+    // Clean response
+    text = text.trim().replace(/^```json\n?/, '').replace(/\n?```$/, '');
+    if (!text.endsWith(']') && !text.endsWith('}')) {
+      text += ']';
+    }
+
+    console.log('Cleaned response:', text); // Debug log
+
+    const flashcards = JSON.parse(text);
+    console.log("Generated flashcards:", flashcards);
+    
+    // Store flashcards in state or local storage
+    localStorage.setItem(`flashcards-${lectureId}`, JSON.stringify(flashcards));
+    
+    // Navigate to flashcards page with the generated data
+    navigate('/flashcards', { state: { flashcards } });
+    
+  } catch (err) {
+    console.error('Full error:', err); // Debug log
+    alert(`Failed to generate flashcards: ${err instanceof Error ? err.message : String(err)}`);
+  } finally {
+    setFlashcardLoadingId(null); // <-- stop loading
+  }
+};
+
+//chatbot 
+const handleStartChat = async (lectureId: string) => {
+  try {
+    setChatLoadingId(lectureId); // Show loading state
+    const token = localStorage.getItem('token') || '';
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      ...(token && { Authorization: `Bearer ${token}` }),
+    };
+
+    console.log('Starting chat preparation for lecture:', lectureId);
+
+    // Step 1: Get context
+    const contextRes = await fetch(
+      `/api/users/${userId}/courses/${courseId}/lectures/${lectureId}/context`,
+      { headers }
+    );
+    
+    if (!contextRes.ok) {
+      const errorData = await contextRes.json();
+      console.error('Context fetch error:', errorData);
+      throw new Error(errorData.message || 'Failed to fetch lecture context');
+    }
+    
+    const { context } = await contextRes.json();
+    console.log('Received context:', context);
+
+    // Step 2: Initialize chat session
+    const prompt = `You are a helpful assistant trained to answer questions based on the following content:\n\n${context}\n\nNow, feel free to ask me any questions related to the above text.`;
+
+    const chatRes = await fetch('/api/chats', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        courseId,
+        messages: [{ role: 'user', content: prompt }]
+      }),
+    });
+
+    if (!chatRes.ok) {
+      const errorData = await chatRes.json();
+      console.error('Chat initialization error:', errorData);
+      throw new Error(errorData.message || 'Failed to initialize chat');
+    }
+    
+    const { _id: chatId } = await chatRes.json();
+    console.log('Created new chat session:', chatId);
+
+    // Store initial chat data
+    const initialMessage = { 
+      role: 'user' as const, 
+      text: prompt, 
+      timestamp: new Date().toLocaleTimeString() 
+    };
+    
+    localStorage.setItem('chatId', chatId);
+    localStorage.setItem('chatMessages', JSON.stringify([initialMessage]));
+    
+    // Navigate to chatbot with the prepared data
+    navigate('/chatbot');
+    
+  } catch (err) {
+    console.error('Full error:', err);
+    alert(`Failed to prepare chat: ${err instanceof Error ? err.message : String(err)}`);
+  } finally {
+    setChatLoadingId(null); // Stop loading
+  }
+};
+
   if (loading) return <div className="loading">Loading...</div>;
   if (error)   return <div className="error">{error}</div>;
   if (!course) return <div className="no-course">Course not found</div>;
@@ -423,17 +570,28 @@ const CourseDetail: React.FC = () => {
                       <i className="fas fa-question-circle"/> Quiz
                     </button>
                     <button
-                      className="action-btn flashcard-btn improved"
-                      onClick={() => navigate('/flashcards')}
-                    >
-                      <i className="fas fa-clone"/> Flashcards
-                    </button>
-                    <button
-                      className="action-btn chat-btn improved"
-                      onClick={() => navigate('/chatbot')}
-                    >
-                      <i className="fas fa-comments"/> Chat
-                    </button>
+  className="action-btn flashcard-btn improved"
+  onClick={() => handleGenerateFlashcards(lec._id)}
+  disabled={flashcardLoadingId === lec._id}
+>
+  {flashcardLoadingId === lec._id ? (
+    <span><i className="fas fa-spinner fa-spin" /> Generating...</span>
+  ) : (
+    <span><i className="fas fa-clone" /> Flashcards</span>
+  )}
+</button>
+                    <button 
+  className="action-btn chat-btn improved"
+  onClick={() => handleStartChat(lec._id)}
+  disabled={chatLoadingId === lec._id}
+>
+  {chatLoadingId === lec._id ? (
+    <i className="fas fa-spinner fa-spin" />
+  ) : (
+    <i className="fas fa-comments" />
+  )}
+  Chat
+</button>
                   </div>
                 </div>
               </div>
